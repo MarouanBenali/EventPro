@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Utilisateur;
+use App\Models\User;
 use App\Models\DemandeOrganisateur;
 use Illuminate\Http\Request;
 use App\Http\Controllers\NotificationController;
@@ -12,10 +12,10 @@ class OrganizerController extends Controller{
     // Faire une demande pour devenir organisateur
     public function requestOrganizer($userId){
         // Vérifier si l'utilisateur existe
-        $user = Utilisateur::findOrFail($userId);
+        $user = User::findOrFail($userId);
 
         // Vérifier si l'utilisateur a déjà une demande en attente ou approuvée
-        $existingRequest = DemandeOrganisateur::where('id_utilisateur', $user->id)
+        $existingRequest = DemandeOrganisateur::where('user_id', $user->id)
             ->whereIn('statut', ['en_attente', 'approuve'])->exists();
 
         if ($existingRequest) {
@@ -24,7 +24,7 @@ class OrganizerController extends Controller{
 
         // Créer une nouvelle demande
         DemandeOrganisateur::create([
-            'id_utilisateur' => $user->id,
+            'user_id' => $user->id,
             'statut' => 'en_attente',
         ]);
 
@@ -34,7 +34,7 @@ class OrganizerController extends Controller{
     // Approuver la demande pour devenir organisateur
     public function approveRequest($userId){
         // Vérifier si la demande existe et est en attente
-        $request = DemandeOrganisateur::where('id_utilisateur', $userId)
+        $request = DemandeOrganisateur::where('user_id', $userId)
             ->where('statut', 'en_attente')->first();
 
         if (!$request) {
@@ -46,7 +46,7 @@ class OrganizerController extends Controller{
         $request->save();
 
         // Mettre à jour le rôle de l'utilisateur pour être organisateur
-        $user = Utilisateur::findOrFail($userId);
+        $user = User::findOrFail($userId);
         $user->role = 'organisateur';
         $user->save();
 
@@ -60,7 +60,7 @@ class OrganizerController extends Controller{
     // Refuser la demande pour devenir organisateur
     public function declineRequest($userId){
         // Vérifier si la demande existe et est en attente
-        $request = DemandeOrganisateur::where('id_utilisateur', $userId)
+        $request = DemandeOrganisateur::where('user_id', $userId)
             ->where('statut', 'en_attente')->first();
 
         if (!$request) {

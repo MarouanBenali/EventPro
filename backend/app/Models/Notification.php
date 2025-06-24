@@ -11,14 +11,14 @@ class Notification extends Model
 
     protected $table = 'notifications';
     protected $fillable = [
-        'id_utilisateur',
+        'user_id',
         'message',
         'type',
         'isVu',
     ];
 
-    public function utilisateur()
+    public function user()
     {
-        return $this->belongsTo(Utilisateur::class, 'id_utilisateur');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

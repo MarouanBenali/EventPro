@@ -8,7 +8,7 @@ use App\Models\Notification;
 class NotificationController extends Controller{
     // Afficher les notifications d'un utilisateur spécifique
     public function index($userId){
-        $notifications = Notification::where('id_utilisateur', $userId)
+        $notifications = Notification::where('user_id', $userId)
                                      ->orderBy('date_creation', 'desc')->get();
         return response()->json($notifications);
     }
@@ -16,7 +16,7 @@ class NotificationController extends Controller{
     //ajouter une nouvelle notification
     public function store($userId, $message, $type){
         $notification = new Notification();
-        $notification->id_utilisateur = $userId;
+        $notification->user_id = $userId;
         $notification->message = $message;
         $notification->type = $type;
         $notification->save();
