@@ -8,10 +8,10 @@ return new class extends Migration {
     public function up(): void{
         Schema::create('demandes_organisateur', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_utilisateur');
+            $table->unsignedBigInteger('user_id');
             $table->string('statut')->default('en_attente');
             $table->timestamps();
-            $table->foreign('id_utilisateur')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
