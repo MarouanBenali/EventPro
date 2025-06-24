@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('id_utilisateur');
             $table->string('statut')->default('en_attente');
             $table->timestamps();
-            $table->foreign('id_utilisateur')->references('id') ->on('utilisateurs') ->onDelete('cascade');
+            $table->foreign('id_utilisateur')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
