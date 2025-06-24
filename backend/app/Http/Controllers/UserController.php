@@ -97,5 +97,34 @@ class UserController extends Controller
             ]
         ]);
     }
-}
 
+    public function getAllUsers()
+    {
+        $users = User::all();
+
+        $transformedUsers = $users->map(function($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                // Add other fields if necessary, e.g., 'created_at', 'updated_at'
+            ];
+        });
+
+        return response()->json($transformedUsers);
+    }
+
+    public function deleteUserByAdmin($id)
+    {
+        // Optional: Add authorization check to ensure only admins can perform this action
+        // if (auth()->user()->role !== 'admin') {
+        //     return response()->json(['message' => 'Unauthorized'], 403);
+        // }
+
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully by admin']);
+    }
+}
