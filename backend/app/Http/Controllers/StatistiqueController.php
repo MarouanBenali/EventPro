@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Statistique;
-use App\Models\Evenement;
+use App\Models\Event;
 use Illuminate\Http\Request;
 
 class StatistiqueController extends Controller{
     // Afficher les statistiques d'un événement spécifique
     public function show($eventId){
         // Vérifier si l'événement existe
-        $evenement = Evenement::findOrFail($eventId);
+        $Event = Event::findOrFail($eventId);
 
         // Récupérer les statistiques associées à cet événement
-        $statistiques = Statistique::where('id_evenement', $eventId)->first();
+        $statistiques = Statistique::where('event_id', $eventId)->first();
 
         if (!$statistiques) {
             return response()->json(['message' => 'Aucune statistique trouvée pour cet événement.'], 404);
@@ -25,7 +25,7 @@ class StatistiqueController extends Controller{
     // Mettre à jour les statistiques pour un événement spécifique
     public function update(Request $request, $eventId){
         // Vérifier si l'événement existe
-        $evenement = Evenement::findOrFail($eventId);
+        $Event = Event::findOrFail($eventId);
 
         // Valider les données de la requête
         $request->validate([
@@ -34,7 +34,7 @@ class StatistiqueController extends Controller{
         ]);
 
         // Vérifier si les statistiques existent pour cet événement
-        $statistiques = Statistique::where('id_evenement', $eventId)->first();
+        $statistiques = Statistique::where('event_id', $eventId)->first();
 
         if ($statistiques) {
             // Si elles existent, les mettre à jour
@@ -44,7 +44,7 @@ class StatistiqueController extends Controller{
         } else {
             // Sinon, créer de nouvelles statistiques
             $statistiques = new Statistique();
-            $statistiques->id_evenement = $eventId;
+            $statistiques->event_id = $eventId;
             $statistiques->nombre_participants = $request->nombre_participants;
             $statistiques->taux_participation = $request->taux_participation;
             $statistiques->save();
@@ -56,8 +56,8 @@ class StatistiqueController extends Controller{
     // Afficher tous les événements avec leurs statistiques
     public function index(){
         // Récupérer tous les événements avec leurs statistiques associées
-        $evenements = Evenement::with('statistiques')->get();
+        $Events = Event::with('statistiques')->get();
 
-        return response()->json($evenements, 200);
+        return response()->json($Events, 200);
     }
 }

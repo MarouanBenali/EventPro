@@ -11,13 +11,13 @@ class Statistique extends Model
 
     protected $table = 'statistiques';
     protected $fillable = [
-        'id_evenement',
+        'event_id',
         'nombre_participants',
         'taux_participation',
     ];
 
     public function evenement()
     {
-        return $this->belongsTo(Evenement::class, 'id_evenement');
+        return $this->belongsTo(Event::class, 'event_id');
     }
 }

@@ -12,7 +12,7 @@ class Inscription extends Model
     protected $table = 'inscriptions';
     protected $fillable = [
         'id_utilisateur',
-        'id_evenement',
+        'event_id',
     ];
 
     public function utilisateur()
@@ -22,6 +22,6 @@ class Inscription extends Model
 
     public function evenement()
     {
-        return $this->belongsTo(Evenement::class, 'id_evenement');
+        return $this->belongsTo(Event::class, 'event_id');
     }
 }

@@ -24,7 +24,7 @@ class Utilisateur extends Model
 
     public function evenementsOrganises()
     {
-        return $this->hasMany(Evenement::class, 'id_organisateur');
+        return $this->hasMany(Event::class, 'id_organisateur');
     }
 
     public function inscriptions()
