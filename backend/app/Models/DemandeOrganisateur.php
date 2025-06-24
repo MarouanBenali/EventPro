@@ -5,18 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DemandeOrganisateur extends Model
-{
+class DemandeOrganisateur extends Model{
     use HasFactory;
 
     protected $table = 'demandes_organisateur';
     protected $fillable = [
-        'id_utilisateur',
+        'user_id',
         'statut',
     ];
 
-    public function utilisateur()
-    {
-        return $this->belongsTo(Utilisateur::class, 'id_utilisateur');
+    public function utilisateur(){
+        return $this->belongsTo(User::class, 'user_id');
     }
 }
