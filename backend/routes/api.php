@@ -6,6 +6,8 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\OrganizerRequestController;
+
 
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -43,4 +45,30 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserController::class, 'getAllUsers']);
         Route::delete('/users/{id}', [UserController::class, 'deleteUserByAdmin']);
     });
+
+    // Organizer Requests
+    Route::get('/organizer-requests', [OrganizerRequestController::class, 'index']);
+    Route::post('/organizer-requests/{id}/approve', [OrganizerRequestController::class, 'approve']);
+    Route::post('/organizer-requests/{id}/reject', [OrganizerRequestController::class, 'reject']);
+
+   Route::post('/request-organizer', function (Request $request) {
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    $existing = \App\Models\DemandeOrganisateur::where('user_id', $user->id)->first();
+    if ($existing) {
+        return response()->json(['message' => 'You already submitted a request.'], 400);
+    }
+
+    $demande = new \App\Models\DemandeOrganisateur();
+    $demande->user_id = $user->id;
+    $demande->statut = 'en_attente';
+    $demande->save();
+
+    return response()->json(['message' => 'Organizer request submitted.']);
+});
+
 });

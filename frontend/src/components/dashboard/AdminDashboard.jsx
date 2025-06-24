@@ -33,7 +33,7 @@ import {
   TextField,
   InputAdornment,
   CircularProgress, // For loading states
-  Snackbar // For future feedback messages
+  Snackbar, // For future feedback messages
 } from "@mui/material";
 import {
   People,
@@ -87,44 +87,52 @@ const AdminDashboard = () => {
     type: "",
     item: null,
   });
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' }); // For future actions
-  const [viewUserDialog, setViewUserDialog] = useState({ open: false, user: null });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  }); // For future actions
+  const [viewUserDialog, setViewUserDialog] = useState({
+    open: false,
+    user: null,
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoadingStats(true);
       setLoadingEvents(true);
-      setLoadingUsers(true); // Set loading for users
+      setLoadingUsers(true);
+      setLoadingRequests(true);
 
       try {
-        // Fetch all necessary data concurrently
-        const [eventsResponse, usersResponse] = await Promise.all([
-          apiService.getEvents(),
-          apiService.getAllUsers() // Fetch users
-        ]);
+        const [eventsResponse, usersResponse, requestsResponse] =
+          await Promise.all([
+            apiService.getEvents(),
+            apiService.getAllUsers(),
+            apiService.getOrganizerRequests(),
+          ]);
 
         setEventsData(Array.isArray(eventsResponse) ? eventsResponse : []);
+        setUsersData(Array.isArray(usersResponse) ? usersResponse : []);
+        setOrganizerRequestsData(
+          Array.isArray(requestsResponse) ? requestsResponse : []
+        );
+
         setEventsError("");
-
-        setUsersData(Array.isArray(usersResponse) ? usersResponse : []); // Set users data
         setUsersError("");
-
-
-        // Placeholder for fetching organizer requests if needed for stats
-        // setOrganizerRequestsData([]); // Or fetch if apiService.getOrganizerRequests exists
-
+        setRequestsError("");
       } catch (err) {
         const errorMsg = err.message || "Failed to load dashboard data.";
         setStatsError(errorMsg);
-        setEventsError(errorMsg); // If events fetch was the primary part of this block
-        setEventsData([]); // Ensure eventsData is an array on error
-        setUsersError(errorMsg); // Set users error as well
-        setUsersData([]); // Ensure usersData is an array on error
+        setEventsError(errorMsg);
+        setUsersError(errorMsg);
+        setRequestsError(errorMsg);
         console.error("Dashboard data fetch error:", err);
       } finally {
         setLoadingStats(false);
         setLoadingEvents(false);
-        setLoadingUsers(false); // Set loading for users to false
+        setLoadingUsers(false);
+        setLoadingRequests(false);
       }
     };
     fetchDashboardData();
@@ -181,10 +189,12 @@ const AdminDashboard = () => {
   };
 
   const handleViewUserDetails = (userItem) => {
-    if (userItem?.email && userItem?.role) { // It's a user
+    if (userItem?.email && userItem?.role) {
+      // It's a user
       setViewUserDialog({ open: true, user: userItem });
       handleMenuClose();
-    } else if (userItem?.title) { // It's an event
+    } else if (userItem?.title) {
+      // It's an event
       navigate(`/events/${userItem.id}`);
       handleMenuClose();
     }
@@ -195,7 +205,8 @@ const AdminDashboard = () => {
     if (!item) return;
 
     try {
-      if (item.email && item.role) { // Heuristic: Check for properties specific to a user object
+      if (item.email && item.role) {
+        // Heuristic: Check for properties specific to a user object
         if (type === "suspend") {
           await apiService.suspendUser(item.id, !item.isSuspended);
           setUsersData(
@@ -203,36 +214,79 @@ const AdminDashboard = () => {
               u.id === item.id ? { ...u, isSuspended: !u.isSuspended } : u
             )
           );
-          setSnackbar({ open: true, message: `User ${item.isSuspended ? 'unsuspended' : 'suspended'} successfully.`, severity: 'success' });
+          setSnackbar({
+            open: true,
+            message: `User ${
+              item.isSuspended ? "unsuspended" : "suspended"
+            } successfully.`,
+            severity: "success",
+          });
         } else if (type === "delete") {
           await apiService.deleteUserByAdmin(item.id);
           setUsersData(usersData.filter((u) => u.id !== item.id));
-          setSnackbar({ open: true, message: 'User deleted successfully.', severity: 'success' });
+          setSnackbar({
+            open: true,
+            message: "User deleted successfully.",
+            severity: "success",
+          });
         }
-      } else if (item.title) { // Heuristic: Check for properties specific to an event object
+      } else if (item.title) {
+        // Heuristic: Check for properties specific to an event object
         // Handle event actions here if needed in the future
         if (type === "delete") {
           await apiService.deleteEvent(item.id); // Assuming admin can delete events
-          setEventsData(eventsData.filter(e => e.id !== item.id));
-          setSnackbar({ open: true, message: 'Event deleted successfully.', severity: 'success' });
+          setEventsData(eventsData.filter((e) => e.id !== item.id));
+          setSnackbar({
+            open: true,
+            message: "Event deleted successfully.",
+            severity: "success",
+          });
         }
         console.log(`Executing ${type} action on event:`, item);
       }
     } catch (err) {
       console.error(`Failed to ${type} item:`, err);
-      setSnackbar({ open: true, message: err.message || `Failed to ${type} item. Please try again.`, severity: 'error' });
+      setSnackbar({
+        open: true,
+        message: err.message || `Failed to ${type} item. Please try again.`,
+        severity: "error",
+      });
     } finally {
       setConfirmDialog({ open: false, type: "", item: null });
     }
   };
 
-  const handleOrganizerRequest = (requestId, action) => {
-    // In a real app, this would make an API call
-    console.log(`${action} organizer request:`, requestId);
-  };
+  const handleOrganizerRequest = async (requestId, action) => {
+    try {
+      if (action === "approve") {
+        await apiService.approveOrganizerRequest(requestId);
+        setSnackbar({
+          open: true,
+          message: "Request approved successfully",
+          severity: "success",
+        });
+      } else {
+        await apiService.rejectOrganizerRequest(requestId);
+        setSnackbar({
+          open: true,
+          message: "Request rejected successfully",
+          severity: "success",
+        });
+      }
 
+      // Refresh the requests
+      const updatedRequests = await apiService.getOrganizerRequests();
+      setOrganizerRequestsData(updatedRequests);
+    } catch (err) {
+      setSnackbar({
+        open: true,
+        message: err.message || `Failed to ${action} request`,
+        severity: "error",
+      });
+    }
+  };
   const handleCloseSnackbar = (event, reason) => {
-    if (reason === 'clickaway') {
+    if (reason === "clickaway") {
       return;
     }
     setSnackbar({ ...snackbar, open: false });
@@ -345,16 +399,18 @@ const AdminDashboard = () => {
               }}
               sx={{ flexGrow: 1 }} // This TextField is inside the Box
             />
-          </Box> {/* This Box should be closed here */}
+          </Box>{" "}
+          {/* This Box should be closed here */}
           {loadingUsers && ( // Changed from loadingEvents to loadingUsers
             <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
               <CircularProgress />{" "}
               <Typography sx={{ ml: 2 }}>Loading users...</Typography>
             </Box>
           )}
-          {usersError && !loadingUsers && ( // Changed from eventsError to usersError
-            <Alert severity="error">{usersError}</Alert>
-          )}
+          {usersError &&
+            !loadingUsers && ( // Changed from eventsError to usersError
+              <Alert severity="error">{usersError}</Alert>
+            )}
           {!loadingUsers && // Changed from loadingEvents
             !usersError && // Changed from eventsError
             filteredUsers.length === 0 && // Changed from filteredEvents
@@ -367,55 +423,67 @@ const AdminDashboard = () => {
             !usersError && // Changed from eventsError
             filteredUsers.length === 0 && // Changed from filteredEvents
             !searchTerm && <Alert severity="info">No users found.</Alert>}
-          {!loadingUsers && !usersError && filteredUsers.length > 0 && ( // Changed from loadingEvents, eventsError, filteredEvents
-            <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Role</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredUsers.map((u) => ( // Changed variable name for clarity
-                    <TableRow key={u.id}>
-                      <TableCell>{u.name || "N/A"}</TableCell>
-                      <TableCell>{u.email || "N/A"}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={u.role ? u.role.charAt(0).toUpperCase() + u.role.slice(1) : "N/A"}
-                          color={
-                            u.role === "admin"
-                              ? "error"
-                              : u.role === "organizer"
-                              ? "warning"
-                              : "default"
-                          }
-                          size="small"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={u.isSuspended ? "Suspended" : "Active"} // Assuming an isSuspended property
-                          color={u.isSuspended ? "error" : "success"} 
-                          size="small" />
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          onClick={(e) => handleMenuOpen(e, u, "user")}
-                        >
-                          <MoreVert />
-                        </IconButton>
-                      </TableCell>
+          {!loadingUsers &&
+            !usersError &&
+            filteredUsers.length > 0 && ( // Changed from loadingEvents, eventsError, filteredEvents
+              <TableContainer>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Role</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Actions</TableCell>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
+                  </TableHead>
+                  <TableBody>
+                    {filteredUsers.map(
+                      (
+                        u // Changed variable name for clarity
+                      ) => (
+                        <TableRow key={u.id}>
+                          <TableCell>{u.name || "N/A"}</TableCell>
+                          <TableCell>{u.email || "N/A"}</TableCell>
+                          <TableCell>
+                            <Chip
+                              label={
+                                u.role
+                                  ? u.role.charAt(0).toUpperCase() +
+                                    u.role.slice(1)
+                                  : "N/A"
+                              }
+                              color={
+                                u.role === "admin"
+                                  ? "error"
+                                  : u.role === "organizer"
+                                  ? "warning"
+                                  : "default"
+                              }
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={u.isSuspended ? "Suspended" : "Active"} // Assuming an isSuspended property
+                              color={u.isSuspended ? "error" : "success"}
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              onClick={(e) => handleMenuOpen(e, u, "user")}
+                            >
+                              <MoreVert />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
         </TabPanel>
 
         {/* Events Management Tab */}
@@ -434,10 +502,10 @@ const AdminDashboard = () => {
               }}
               sx={{ flexGrow: 1 }}
             />
-            <Button 
-              variant="contained" 
+            <Button
+              variant="contained"
               startIcon={<EventAvailable />}
-              onClick={() => navigate('/events/create')} // Navigate to create event screen
+              onClick={() => navigate("/events/create")} // Navigate to create event screen
             >
               Add Event
             </Button>
@@ -507,9 +575,15 @@ const AdminDashboard = () => {
             Pending Organizer Requests
           </Typography>
 
-          {Array.isArray(organizerRequestsData) &&
-          organizerRequestsData.filter((r) => r.status === "pending").length >
-            0 ? (
+          {loadingRequests ? (
+            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+              <CircularProgress />
+              <Typography sx={{ ml: 2 }}>Loading requests...</Typography>
+            </Box>
+          ) : requestsError ? (
+            <Alert severity="error">{requestsError}</Alert>
+          ) : organizerRequestsData.filter((r) => r.status === "pending")
+              .length > 0 ? (
             <Grid container spacing={2}>
               {organizerRequestsData
                 .filter((r) => r.status === "pending")
@@ -518,20 +592,20 @@ const AdminDashboard = () => {
                     <Card variant="outlined">
                       <CardContent>
                         <Typography variant="h6" gutterBottom>
-                          {request.userName}
+                          {request.userName ||
+                            request.user?.name ||
+                            "Unknown User"}
                         </Typography>
                         <Typography
                           variant="body2"
                           color="text.secondary"
                           gutterBottom
                         >
-                          {request.userEmail || "N/A"}
+                          {request.userEmail || request.user?.email || "N/A"}
                         </Typography>
                         <Typography variant="body2" gutterBottom>
                           Requested on:{" "}
-                          {request.requestDate
-                            ? new Date(request.requestDate).toLocaleDateString()
-                            : "N/A"}
+                          {new Date(request.requestDate).toLocaleDateString()}
                         </Typography>
                         <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
                           <Button
@@ -566,7 +640,6 @@ const AdminDashboard = () => {
             </Alert>
           )}
         </TabPanel>
-
       </Paper>
 
       {/* Action Menu */}
@@ -575,14 +648,16 @@ const AdminDashboard = () => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
       >
-        <MenuItem 
+        <MenuItem
           onClick={() => handleViewUserDetails(selectedUser || selectedEvent)}
           disabled={!(selectedUser || selectedEvent)} // Disable if nothing is selected
         >
           <Visibility sx={{ mr: 1 }} /> View Details
         </MenuItem>
         <MenuItem
-          onClick={() => handleConfirmAction("delete", selectedUser || selectedEvent) }
+          onClick={() =>
+            handleConfirmAction("delete", selectedUser || selectedEvent)
+          }
         >
           <Delete sx={{ mr: 1 }} /> Delete
         </MenuItem>
@@ -597,10 +672,11 @@ const AdminDashboard = () => {
         <DialogContent>
           <Typography>
             Are you sure you want to {confirmDialog.type} this{" "}
-            {confirmDialog.item?.email ? 'user' : 'event'}: {" "}
+            {confirmDialog.item?.email ? "user" : "event"}:{" "}
             <strong>
               {confirmDialog.item?.name || confirmDialog.item?.title || "item"}
-            </strong>?
+            </strong>
+            ?
           </Typography>
         </DialogContent>
         <DialogActions>
@@ -611,31 +687,49 @@ const AdminDashboard = () => {
           >
             Cancel
           </Button>
-          <Button 
-            onClick={executeAction} 
-            color="error"
-            variant="contained"
-          >
+          <Button onClick={executeAction} color="error" variant="contained">
             Confirm {confirmDialog.type}
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
 
       {/* View User Details Dialog */}
-      <Dialog open={viewUserDialog.open} onClose={() => setViewUserDialog({ open: false, user: null })}>
+      <Dialog
+        open={viewUserDialog.open}
+        onClose={() => setViewUserDialog({ open: false, user: null })}
+      >
         <DialogTitle>User Details</DialogTitle>
         <DialogContent>
           {viewUserDialog.user ? (
             <Box>
-              <Typography variant="subtitle1"><strong>Name:</strong> {viewUserDialog.user.name}</Typography>
-              <Typography variant="subtitle1"><strong>Email:</strong> {viewUserDialog.user.email}</Typography>
-              <Typography variant="subtitle1"><strong>Role:</strong> {viewUserDialog.user.role?.charAt(0).toUpperCase() + viewUserDialog.user.role?.slice(1)}</Typography>
-              <Typography variant="subtitle1"><strong>Status:</strong> {viewUserDialog.user.isSuspended ? "Suspended" : "Active"}</Typography>
+              <Typography variant="subtitle1">
+                <strong>Name:</strong> {viewUserDialog.user.name}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Email:</strong> {viewUserDialog.user.email}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Role:</strong>{" "}
+                {viewUserDialog.user.role?.charAt(0).toUpperCase() +
+                  viewUserDialog.user.role?.slice(1)}
+              </Typography>
+              <Typography variant="subtitle1">
+                <strong>Status:</strong>{" "}
+                {viewUserDialog.user.isSuspended ? "Suspended" : "Active"}
+              </Typography>
               {/* Add more details as needed */}
             </Box>
           ) : (
@@ -643,7 +737,9 @@ const AdminDashboard = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setViewUserDialog({ open: false, user: null })}>
+          <Button
+            onClick={() => setViewUserDialog({ open: false, user: null })}
+          >
             Close
           </Button>
         </DialogActions>

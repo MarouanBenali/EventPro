@@ -24,7 +24,6 @@ import {
   Event,
   Dashboard,
   Person,
-  AdminPanelSettings,
   Add,
   ExitToApp,
   Login
@@ -77,7 +76,7 @@ const Navigation = () => {
       }
     }
 
-    return items.filter(item => 
+    return items.filter(item =>
       !user ? item.roles.includes('visitor') : item.roles.includes(user.role)
     );
   };
@@ -88,26 +87,31 @@ const Navigation = () => {
     <Box sx={{ width: 250 }} role="presentation">
       <List>
         {menuItems.map((item) => (
-          <ListItem 
-            button 
-            key={item.text} 
-            component={Link} 
+          <ListItem
+            key={item.text}
+            component={Link}
             to={item.path}
             selected={location.pathname === item.path}
             onClick={() => setMobileOpen(false)}
+            sx={{ cursor: 'pointer' }}
           >
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
         {!user && (
-          <ListItem button component={Link} to="/login" onClick={() => setMobileOpen(false)}>
+          <ListItem
+            component={Link}
+            to="/login"
+            onClick={() => setMobileOpen(false)}
+            sx={{ cursor: 'pointer' }}
+          >
             <ListItemIcon><Login /></ListItemIcon>
             <ListItemText primary="Login" />
           </ListItem>
         )}
         {user && (
-          <ListItem button onClick={handleLogout}>
+          <ListItem onClick={handleLogout} sx={{ cursor: 'pointer' }}>
             <ListItemIcon><ExitToApp /></ListItemIcon>
             <ListItemText primary="Logout" />
           </ListItem>
@@ -131,14 +135,14 @@ const Navigation = () => {
               <MenuIcon />
             </IconButton>
           )}
-          
-          <Typography 
-            variant="h6" 
-            component={Link} 
-            to="/" 
-            sx={{ 
-              flexGrow: 1, 
-              textDecoration: 'none', 
+
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            sx={{
+              flexGrow: 1,
+              textDecoration: 'none',
               color: 'inherit',
               fontWeight: 'bold'
             }}

@@ -13,7 +13,8 @@ class OrganizerRequestController extends Controller
         return response()->json($requests);
     }
 
-    public function approve($id){
+    public function approve($id)
+    {
         $request = DemandeOrganisateur::findOrFail($id);
         $request->statut = 'approuve';
         $request->save();
@@ -34,5 +35,21 @@ class OrganizerRequestController extends Controller
         $request->save();
 
         return response()->json(['message' => 'Request rejected successfully.']);
+    }
+
+    public function request(Request $request)
+    {
+        $user = $request->user(); 
+
+        if (DemandeOrganisateur::where('user_id', $user->id)->exists()) {
+            return response()->json(['message' => 'You have already requested to become an organizer.'], 400);
+        }
+
+        $demande = new DemandeOrganisateur();
+        $demande->user_id = $user->id;
+        $demande->statut = 'en attente';
+        $demande->save();
+
+        return response()->json(['message' => 'Request submitted successfully.']);
     }
 }
