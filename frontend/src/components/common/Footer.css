@@ -1,0 +1,28 @@
+.footer {
+  background-color: #1976d2; 
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-size: 16px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.footer-links {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  text-decoration: underline;
+}

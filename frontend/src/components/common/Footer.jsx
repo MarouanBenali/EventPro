@@ -1,47 +1,19 @@
 import React from 'react';
-import { Box, Typography, Container, Link } from '@mui/material';
+import './Footer.css'; 
 
 const Footer = () => {
   return (
-    <Box
-      component="footer"
-      sx={{
-        backgroundColor: 'primary.main',
-        color: 'primary.contrastText',
-        py: 3,
-        mt: 'auto'
-      }}
-    >
-      <Container maxWidth="lg">
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 2
-          }}
-        >
-          <Typography variant="body2">
-            © 2024 EventPro. All rights reserved.
-          </Typography>
-          
-          <Box sx={{ display: 'flex', gap: 3 }}>
-            <Link href="#" color="inherit" underline="hover">
-              Privacy Policy
-            </Link>
-            <Link href="#" color="inherit" underline="hover">
-              Terms of Service
-            </Link>
-            <Link href="#" color="inherit" underline="hover">
-              Contact Us
-            </Link>
-          </Box>
-        </Box>
-      </Container>
-    </Box>
+    <footer className="footer">
+      <div className="footer-container">
+        <p>© 2024 EventPro. All rights reserved.</p>
+        <div className="footer-links">
+          <a href="#" className="footer-link">Privacy Policy</a>
+          <a href="#" className="footer-link">Terms of Service</a>
+          <a href="mailto:marwanqsd01@gmail.com" className="footer-link">Contact Us</a>
+        </div>
+      </div>
+    </footer>
   );
 };
 
 export default Footer;
-

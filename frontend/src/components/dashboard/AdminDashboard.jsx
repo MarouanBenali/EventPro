@@ -1,747 +1,497 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Typography,
-  Box,
-  Grid,
-  Paper,
-  Button,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Chip,
-  Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tabs,
-  Tab,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Divider,
-  TextField,
-  InputAdornment,
-  CircularProgress, // For loading states
-  Snackbar, // For future feedback messages
-} from "@mui/material";
-import {
-  People,
-  Event,
-  TrendingUp,
-  AdminPanelSettings,
-  MoreVert,
-  Check,
-  Close,
-  Search,
-  FilterList,
-  Visibility,
-  Edit,
-  Delete,
-  PersonAdd,
-  EventAvailable,
-} from "@mui/icons-material";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import apiService from "../../utils/apiService"; // Import apiService
+import apiService from "../../utils/apiService";
+import "./AdminDashboard.css";
+
+// استيراد الأيقونات من react-icons
+import { 
+  FaUsers, 
+  FaCalendarAlt, 
+  FaUserShield, 
+  FaSearch,
+  FaEllipsisV,
+  FaEye,
+  FaTrash,
+  FaCheck,
+  FaTimes,
+  FaPlus
+} from "react-icons/fa";
 
 const AdminDashboard = () => {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Data states
-  const [usersData, setUsersData] = useState([]); // For Users Management (to be implemented later)
-  const [eventsData, setEventsData] = useState([]); // For Events Management
-  const [organizerRequestsData, setOrganizerRequestsData] = useState([]); // For Organizer Requests (to be implemented later)
-
-  // Loading states
-  const [loadingUsers, setLoadingUsers] = useState(true);
-  const [loadingEvents, setLoadingEvents] = useState(true);
-  const [loadingRequests, setLoadingRequests] = useState(true);
-  const [loadingStats, setLoadingStats] = useState(true); // For the top statistics cards
-
-  // Error states
-  const [usersError, setUsersError] = useState("");
-  const [eventsError, setEventsError] = useState("");
-  const [requestsError, setRequestsError] = useState("");
-  const [statsError, setStatsError] = useState(""); // For the top statistics cards
-
-  // UI states (existing)
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [selectedEvent, setSelectedEvent] = useState(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    type: "",
-    item: null,
+  const [data, setData] = useState({
+    users: [],
+    events: [],
+    requests: []
   });
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  }); // For future actions
-  const [viewUserDialog, setViewUserDialog] = useState({
-    open: false,
-    user: null,
+  const [loading, setLoading] = useState({
+    stats: true,
+    users: true,
+    events: true,
+    requests: true
+  });
+  const [errors, setErrors] = useState({
+    stats: "",
+    users: "",
+    events: "",
+    requests: ""
+  });
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [modal, setModal] = useState({
+    confirm: { open: false, type: "", item: null },
+    viewUser: { open: false, user: null },
+    snackbar: { open: false, message: "", type: "success" }
   });
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoadingStats(true);
-      setLoadingEvents(true);
-      setLoadingUsers(true);
-      setLoadingRequests(true);
-
+    const fetchData = async () => {
       try {
-        const [eventsResponse, usersResponse, requestsResponse] =
-          await Promise.all([
-            apiService.getEvents(),
-            apiService.getAllUsers(),
-            apiService.getOrganizerRequests(),
-          ]);
+        setLoading(prev => ({ ...prev, stats: true, users: true, events: true, requests: true }));
+        
+        const [events, users, requests] = await Promise.all([
+          apiService.getEvents(),
+          apiService.getAllUsers(),
+          apiService.getOrganizerRequests()
+        ]);
 
-        setEventsData(Array.isArray(eventsResponse) ? eventsResponse : []);
-        setUsersData(Array.isArray(usersResponse) ? usersResponse : []);
-        setOrganizerRequestsData(
-          Array.isArray(requestsResponse) ? requestsResponse : []
-        );
+        setData({
+          events: Array.isArray(events) ? events : [],
+          users: Array.isArray(users) ? users : [],
+          requests: Array.isArray(requests) ? requests : []
+        });
 
-        setEventsError("");
-        setUsersError("");
-        setRequestsError("");
+        setErrors({ stats: "", users: "", events: "", requests: "" });
       } catch (err) {
-        const errorMsg = err.message || "Failed to load dashboard data.";
-        setStatsError(errorMsg);
-        setEventsError(errorMsg);
-        setUsersError(errorMsg);
-        setRequestsError(errorMsg);
-        console.error("Dashboard data fetch error:", err);
+        const errorMsg = err.message || "Failed to load data";
+        setErrors({
+          stats: errorMsg,
+          users: errorMsg,
+          events: errorMsg,
+          requests: errorMsg
+        });
       } finally {
-        setLoadingStats(false);
-        setLoadingEvents(false);
-        setLoadingUsers(false);
-        setLoadingRequests(false);
+        setLoading(prev => ({ ...prev, stats: false, users: false, events: false, requests: false }));
       }
     };
-    fetchDashboardData();
+
+    fetchData();
   }, []);
 
-  const dynamicStats = [
-    {
-      icon: <People />,
-      label: "Total Users",
-      value: usersData.length, // Will update when usersData is fetched
-      color: "primary",
-    },
-    {
-      icon: <Event />,
-      label: "Total Events",
-      value: eventsData.length,
-      color: "secondary",
-    },
-    // Active Registrations might require a separate or more complex query
-    {
-      icon: <AdminPanelSettings />,
-      label: "Pending Requests",
-      value: Array.isArray(organizerRequestsData)
-        ? organizerRequestsData.filter((r) => r.status === "pending").length
-        : 0,
-      color: "warning",
-    },
+  const stats = [
+    { icon: <FaUsers />, label: "Total Users", value: data.users.length, color: "#3f51b5" },
+    { icon: <FaCalendarAlt />, label: "Total Events", value: data.events.length, color: "#9c27b0" },
+    { icon: <FaUserShield />, label: "Pending Requests", 
+      value: data.requests.filter(r => r.statut === "pending").length, 
+      color: "#ff9800" 
+    }
   ];
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
+  const filteredData = {
+    users: data.users.filter(user => 
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    events: data.events.filter(event =>
+      event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (event.organizer?.name || event.organizer || "").toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    requests: data.requests.filter(r => r.statut === "pending")
   };
 
-  const handleMenuOpen = (event, item, type) => {
-    setAnchorEl(event.currentTarget);
-    if (type === "user") {
-      setSelectedEvent(null); // Clear other selection
-      setSelectedUser(item);
-    } else if (type === "event") {
-      setSelectedUser(null); // Clear other selection
-      setSelectedEvent(item);
-    }
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    setSelectedUser(null);
-    setSelectedEvent(null);
-  };
-
-  const handleConfirmAction = (type, item) => {
-    setConfirmDialog({ open: true, type, item });
-    handleMenuClose();
-  };
-
-  const handleViewUserDetails = (userItem) => {
-    if (userItem?.email && userItem?.role) {
-      // It's a user
-      setViewUserDialog({ open: true, user: userItem });
-      handleMenuClose();
-    } else if (userItem?.title) {
-      // It's an event
-      navigate(`/events/${userItem.id}`);
-      handleMenuClose();
-    }
-  };
-
-  const executeAction = async () => {
-    const { type, item } = confirmDialog;
-    if (!item) return;
-
+  const handleRequestAction = async (id, action) => {
     try {
-      if (item.email && item.role) {
-        // Heuristic: Check for properties specific to a user object
-        if (type === "suspend") {
-          await apiService.suspendUser(item.id, !item.isSuspended);
-          setUsersData(
-            usersData.map((u) =>
-              u.id === item.id ? { ...u, isSuspended: !u.isSuspended } : u
-            )
-          );
-          setSnackbar({
-            open: true,
-            message: `User ${
-              item.isSuspended ? "unsuspended" : "suspended"
-            } successfully.`,
-            severity: "success",
-          });
-        } else if (type === "delete") {
-          await apiService.deleteUserByAdmin(item.id);
-          setUsersData(usersData.filter((u) => u.id !== item.id));
-          setSnackbar({
-            open: true,
-            message: "User deleted successfully.",
-            severity: "success",
-          });
-        }
-      } else if (item.title) {
-        // Heuristic: Check for properties specific to an event object
-        // Handle event actions here if needed in the future
-        if (type === "delete") {
-          await apiService.deleteEvent(item.id); // Assuming admin can delete events
-          setEventsData(eventsData.filter((e) => e.id !== item.id));
-          setSnackbar({
-            open: true,
-            message: "Event deleted successfully.",
-            severity: "success",
-          });
-        }
-        console.log(`Executing ${type} action on event:`, item);
-      }
+      await apiService[`${action}OrganizerRequest`](id);
+      const updated = await apiService.getOrganizerRequests();
+      setData(prev => ({ ...prev, requests: updated }));
+      showSnackbar(`Request ${action}d successfully`);
     } catch (err) {
-      console.error(`Failed to ${type} item:`, err);
-      setSnackbar({
-        open: true,
-        message: err.message || `Failed to ${type} item. Please try again.`,
-        severity: "error",
-      });
-    } finally {
-      setConfirmDialog({ open: false, type: "", item: null });
+      showSnackbar(err.message || `Failed to ${action} request`, "error");
     }
   };
 
-  const handleOrganizerRequest = async (requestId, action) => {
-    try {
-      if (action === "approve") {
-        await apiService.approveOrganizerRequest(requestId);
-        setSnackbar({
-          open: true,
-          message: "Request approved successfully",
-          severity: "success",
-        });
-      } else {
-        await apiService.rejectOrganizerRequest(requestId);
-        setSnackbar({
-          open: true,
-          message: "Request rejected successfully",
-          severity: "success",
-        });
-      }
-
-      // Refresh the requests
-      const updatedRequests = await apiService.getOrganizerRequests();
-      setOrganizerRequestsData(updatedRequests);
-    } catch (err) {
-      setSnackbar({
-        open: true,
-        message: err.message || `Failed to ${action} request`,
-        severity: "error",
-      });
-    }
-  };
-  const handleCloseSnackbar = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbar({ ...snackbar, open: false });
+  const showSnackbar = (message, type = "success") => {
+    setModal(prev => ({
+      ...prev,
+      snackbar: { open: true, message, type }
+    }));
   };
 
-  const filteredUsers = Array.isArray(usersData)
-    ? usersData.filter(
-        (user) =>
-          (user.name &&
-            user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (user.email &&
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    : [];
-
-  const filteredEvents = Array.isArray(eventsData)
-    ? eventsData.filter(
-        (event) =>
-          (event.title &&
-            event.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (event.organizer &&
-            typeof event.organizer === "string" &&
-            event.organizer.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (event.organizer &&
-            typeof event.organizer === "object" &&
-            event.organizer.name &&
-            event.organizer.name
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      )
-    : [];
-
-  const TabPanel = ({ children, value, index }) => (
-    <div hidden={value !== index}>
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
-  );
+  const closeSnackbar = () => {
+    setModal(prev => ({
+      ...prev,
+      snackbar: { ...prev.snackbar, open: false }
+    }));
+  };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <div className="admin-container">
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          Admin Dashboard
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Manage users, events, and monitor platform activity
-        </Typography>
-      </Box>
+      <header className="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>Manage users, events, and monitor platform activity</p>
+      </header>
 
-      {statsError && !loadingStats && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {statsError}
-        </Alert>
-      )}
       {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {dynamicStats.map((stat, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Paper
-              elevation={2}
-              sx={{
-                p: 3,
-                textAlign: "center",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-              }}
-            >
-              <Box sx={{ color: `${stat.color}.main`, mb: 1 }}>{stat.icon}</Box>
-              <Typography
-                variant="h4"
-                fontWeight="bold"
-                color={`${stat.color}.main`}
-              >
-                {loadingStats ? <CircularProgress size={24} /> : stat.value}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {stat.label}
-              </Typography>
-            </Paper>
-          </Grid>
+      {errors.stats && !loading.stats && (
+        <div className="error-message">{errors.stats}</div>
+      )}
+      
+      <div className="stats-grid">
+        {stats.map((stat, index) => (
+          <div key={index} className="stat-card" style={{ backgroundColor: "#f0f7ff"}}>
+            <div className="stat-icon" style={{ color: stat.color }}>
+              {stat.icon}
+            </div>
+            <div className="stat-value">
+              {loading.stats ? <div className="loading-spinner" /> : stat.value}
+            </div>
+            <div className="stat-label">{stat.label}</div>
+          </div>
         ))}
-      </Grid>
+      </div>
 
       {/* Main Content */}
-      <Paper elevation={2} sx={{ p: 3 }}>
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-          <Tabs value={tabValue} onChange={handleTabChange}>
-            <Tab label="Users Management" />
-            <Tab label="Events Management" />
-            <Tab label="Organizer Requests" />
-          </Tabs>
-        </Box>
+      <div className="admin-content">
+        {/* Tabs */}
+        <div className="tabs">
+          <button 
+            className={tabValue === 0 ? "active" : ""}
+            onClick={() => setTabValue(0)}
+          >
+            Users
+          </button>
+          <button 
+            className={tabValue === 1 ? "active" : ""}
+            onClick={() => setTabValue(1)}
+          >
+            Events
+          </button>
+          <button 
+            className={tabValue === 2 ? "active" : ""}
+            onClick={() => setTabValue(2)}
+          >
+            Requests
+          </button>
+        </div>
 
-        {/* Users Management Tab */}
-        <TabPanel value={tabValue} index={0}>
-          <Box sx={{ mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
-            <TextField
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ flexGrow: 1 }} // This TextField is inside the Box
-            />
-          </Box>{" "}
-          {/* This Box should be closed here */}
-          {loadingUsers && ( // Changed from loadingEvents to loadingUsers
-            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-              <CircularProgress />{" "}
-              <Typography sx={{ ml: 2 }}>Loading users...</Typography>
-            </Box>
+        {/* Search Bar */}
+        <div className="search-bar">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder={`Search ${tabValue === 0 ? 'users' : tabValue === 1 ? 'events' : 'requests'}...`}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        {/* Tab Panels */}
+        <div className="tab-panels">
+          {/* Users Panel */}
+          {tabValue === 0 && (
+            <div className="tab-panel">
+              {loading.users ? (
+                <div className="loading">Loading users...</div>
+              ) : errors.users ? (
+                <div className="error-message">{errors.users}</div>
+              ) : filteredData.users.length === 0 ? (
+                <div className="empty-message">
+                  {searchTerm ? `No users found for "${searchTerm}"` : "No users found"}
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.users.map(user => (
+                      <tr key={user.id}>
+                        <td>{user.name || "N/A"}</td>
+                        <td>{user.email || "N/A"}</td>
+                        <td>
+                          <span className={`role-badge ${user.role}`}>
+                            {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`status-badge ${user.isSuspended ? "suspended" : "active"}`}>
+                            {user.isSuspended ? "Suspended" : "Active"}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            className="action-button"
+                            onClick={() => setSelectedItem(user)}
+                          >
+                            <FaEllipsisV />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           )}
-          {usersError &&
-            !loadingUsers && ( // Changed from eventsError to usersError
-              <Alert severity="error">{usersError}</Alert>
-            )}
-          {!loadingUsers && // Changed from loadingEvents
-            !usersError && // Changed from eventsError
-            filteredUsers.length === 0 && // Changed from filteredEvents
-            searchTerm && (
-              <Alert severity="info">
-                No users found matching "{searchTerm}".
-              </Alert>
-            )}
-          {!loadingUsers && // Changed from loadingEvents
-            !usersError && // Changed from eventsError
-            filteredUsers.length === 0 && // Changed from filteredEvents
-            !searchTerm && <Alert severity="info">No users found.</Alert>}
-          {!loadingUsers &&
-            !usersError &&
-            filteredUsers.length > 0 && ( // Changed from loadingEvents, eventsError, filteredEvents
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Email</TableCell>
-                      <TableCell>Role</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredUsers.map(
-                      (
-                        u // Changed variable name for clarity
-                      ) => (
-                        <TableRow key={u.id}>
-                          <TableCell>{u.name || "N/A"}</TableCell>
-                          <TableCell>{u.email || "N/A"}</TableCell>
-                          <TableCell>
-                            <Chip
-                              label={
-                                u.role
-                                  ? u.role.charAt(0).toUpperCase() +
-                                    u.role.slice(1)
-                                  : "N/A"
-                              }
-                              color={
-                                u.role === "admin"
-                                  ? "error"
-                                  : u.role === "organizer"
-                                  ? "warning"
-                                  : "default"
-                              }
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={u.isSuspended ? "Suspended" : "Active"} // Assuming an isSuspended property
-                              color={u.isSuspended ? "error" : "success"}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <IconButton
-                              onClick={(e) => handleMenuOpen(e, u, "user")}
-                            >
-                              <MoreVert />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      )
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-        </TabPanel>
 
-        {/* Events Management Tab */}
-        <TabPanel value={tabValue} index={1}>
-          <Box sx={{ mb: 3, display: "flex", gap: 2, alignItems: "center" }}>
-            <TextField
-              placeholder="Search events..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ flexGrow: 1 }}
-            />
-            <Button
-              variant="contained"
-              startIcon={<EventAvailable />}
-              onClick={() => navigate("/events/create")} // Navigate to create event screen
-            >
-              Add Event
-            </Button>
-          </Box>
-
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Event Title</TableCell>
-                  <TableCell>Organizer</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Participants</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredEvents.map((evt) => (
-                  <TableRow key={evt.id}>
-                    <TableCell>{evt.title || "N/A"}</TableCell>
-                    <TableCell>
-                      {evt.organizer?.name || evt.organizer || "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      {evt.date
-                        ? new Date(evt.date).toLocaleDateString()
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      {evt.currentParticipants !== undefined &&
-                      evt.maxParticipants !== undefined
-                        ? `${evt.currentParticipants}/${evt.maxParticipants}`
-                        : "N/A"}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={
-                          evt.status
-                            ? evt.status.charAt(0).toUpperCase() +
-                              evt.status.slice(1)
-                            : "N/A"
-                        }
-                        color={
-                          evt.status === "upcoming" ? "success" : "default"
-                        }
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        onClick={(e) => handleMenuOpen(e, evt, "event")}
-                      >
-                        <MoreVert />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </TabPanel>
-{/* Organizer Requests Tab */}
-<TabPanel value={tabValue} index={2}>
-  <Typography variant="h6" gutterBottom>
-    Pending Organizer Requests
-  </Typography>
-
-  {loadingRequests ? (
-    <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-      <CircularProgress />
-      <Typography sx={{ ml: 2 }}>Loading requests...</Typography>
-    </Box>
-  ) : requestsError ? (
-    <Alert severity="error">{requestsError}</Alert>
-  ) : organizerRequestsData.filter((r) => r.statut === "pending").length > 0 ? (
-    <Grid container spacing={2}>
-      {organizerRequestsData
-        .filter((r) => r.statut === "pending")
-        .map((request) => (
-          <Grid item xs={12} md={6} key={request.id}>
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {request.user?.name || "Unknown User"}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  gutterBottom
+          {/* Events Panel */}
+          {tabValue === 1 && (
+            <div className="tab-panel">
+              <div className="panel-header">
+                <button 
+                  className="add-button"
+                  onClick={() => navigate("/events/create")}
                 >
-                  {request.user?.email || "N/A"}
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  Requested on:{" "}
-                  {new Date(request.created_at).toLocaleDateString()}
-                </Typography>
-                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                  <Button
-                    variant="contained"
-                    color="success"
-                    startIcon={<Check />}
-                    onClick={() =>
-                      handleOrganizerRequest(request.id, "approve")
-                    }
-                  >
-                    Approve
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<Close />}
-                    onClick={() =>
-                      handleOrganizerRequest(request.id, "reject")
-                    }
-                  >
-                    Reject
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-    </Grid>
-  ) : (
-    <Alert severity="info">
-      No pending organizer requests at this time.
-    </Alert>
-  )}
-</TabPanel>
+                  <FaPlus /> Add Event
+                </button>
+              </div>
 
-      </Paper>
+              {loading.events ? (
+                <div className="loading">Loading events...</div>
+              ) : errors.events ? (
+                <div className="error-message">{errors.events}</div>
+              ) : filteredData.events.length === 0 ? (
+                <div className="empty-message">
+                  {searchTerm ? `No events found for "${searchTerm}"` : "No events found"}
+                </div>
+              ) : (
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Organizer</th>
+                      <th>Date</th>
+                      <th>Participants</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredData.events.map(event => (
+                      <tr key={event.id}>
+                        <td>{event.title || "N/A"}</td>
+                        <td>{event.organizer?.name || event.organizer || "N/A"}</td>
+                        <td>{event.date ? new Date(event.date).toLocaleDateString() : "N/A"}</td>
+                        <td>
+                          {event.currentParticipants !== undefined && event.maxParticipants !== undefined
+                            ? `${event.currentParticipants}/${event.maxParticipants}`
+                            : "N/A"}
+                        </td>
+                        <td>
+                          <span className={`status-badge ${event.status}`}>
+                            {event.status?.charAt(0).toUpperCase() + event.status?.slice(1)}
+                          </span>
+                        </td>
+                        <td>
+                          <button 
+                            className="action-button"
+                            onClick={() => setSelectedItem(event)}
+                          >
+                            <FaEllipsisV />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
+
+          {/* Requests Panel */}
+          {tabValue === 2 && (
+            <div className="tab-panel">
+              <h3>Pending Organizer Requests</h3>
+              
+              {loading.requests ? (
+                <div className="loading">Loading requests...</div>
+              ) : errors.requests ? (
+                <div className="error-message">{errors.requests}</div>
+              ) : filteredData.requests.length === 0 ? (
+                <div className="empty-message">No pending requests</div>
+              ) : (
+                <div className="requests-grid">
+                  {filteredData.requests.map(request => (
+                    <div key={request.id} className="request-card">
+                      <div className="request-header">
+                        <h4>{request.user?.name || "Unknown User"}</h4>
+                        <p>{request.user?.email || "N/A"}</p>
+                      </div>
+                      <div className="request-meta">
+                        Requested on: {new Date(request.created_at).toLocaleDateString()}
+                      </div>
+                      <div className="request-actions">
+                        <button 
+                          className="approve-button"
+                          onClick={() => handleRequestAction(request.id, "approve")}
+                        >
+                          <FaCheck /> Approve
+                        </button>
+                        <button 
+                          className="reject-button"
+                          onClick={() => handleRequestAction(request.id, "reject")}
+                        >
+                          <FaTimes /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Action Menu */}
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem
-          onClick={() => handleViewUserDetails(selectedUser || selectedEvent)}
-          disabled={!(selectedUser || selectedEvent)} // Disable if nothing is selected
-        >
-          <Visibility sx={{ mr: 1 }} /> View Details
-        </MenuItem>
-        <MenuItem
-          onClick={() =>
-            handleConfirmAction("delete", selectedUser || selectedEvent)
-          }
-        >
-          <Delete sx={{ mr: 1 }} /> Delete
-        </MenuItem>
-      </Menu>
+      {selectedItem && (
+        <div className="action-menu">
+          <div className="menu-backdrop" onClick={() => setSelectedItem(null)} />
+          <div className="menu-content">
+            <button 
+              className="menu-item"
+              onClick={() => {
+                if (selectedItem.email) {
+                  setModal(prev => ({
+                    ...prev,
+                    viewUser: { open: true, user: selectedItem }
+                  }));
+                } else {
+                  navigate(`/events/${selectedItem.id}`);
+                }
+                setSelectedItem(null);
+              }}
+            >
+              <FaEye /> View Details
+            </button>
+            <button 
+              className="menu-item delete"
+              onClick={() => {
+                setModal(prev => ({
+                  ...prev,
+                  confirm: { open: true, type: "delete", item: selectedItem }
+                }));
+                setSelectedItem(null);
+              }}
+            >
+              <FaTrash /> Delete
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* Confirmation Dialog */}
-      <Dialog
-        open={confirmDialog.open}
-        onClose={() => setConfirmDialog({ open: false, type: "", item: null })}
-      >
-        <DialogTitle>Confirm Action</DialogTitle>
-        <DialogContent>
-          <Typography>
-            Are you sure you want to {confirmDialog.type} this{" "}
-            {confirmDialog.item?.email ? "user" : "event"}:{" "}
-            <strong>
-              {confirmDialog.item?.name || confirmDialog.item?.title || "item"}
-            </strong>
-            ?
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() =>
-              setConfirmDialog({ open: false, type: "", item: null })
-            }
-          >
-            Cancel
-          </Button>
-          <Button onClick={executeAction} color="error" variant="contained">
-            Confirm {confirmDialog.type}
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+      {/* Modals */}
+      {/* Confirm Dialog */}
+      {modal.confirm.open && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Confirm Action</h3>
+            <p>
+              Are you sure you want to {modal.confirm.type} this{" "}
+              {modal.confirm.item.email ? "user" : "event"}?
+            </p>
+            <div className="modal-actions">
+              <button 
+                className="cancel-button"
+                onClick={() => setModal(prev => ({
+                  ...prev,
+                  confirm: { ...prev.confirm, open: false }
+                }))}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-button"
+                onClick={async () => {
+                  try {
+                    if (modal.confirm.item.email) {
+                      await apiService.deleteUserByAdmin(modal.confirm.item.id);
+                      setData(prev => ({
+                        ...prev,
+                        users: prev.users.filter(u => u.id !== modal.confirm.item.id)
+                      }));
+                    } else {
+                      await apiService.deleteEvent(modal.confirm.item.id);
+                      setData(prev => ({
+                        ...prev,
+                        events: prev.events.filter(e => e.id !== modal.confirm.item.id)
+                      }));
+                    }
+                    showSnackbar(`${modal.confirm.item.email ? "User" : "Event"} deleted successfully`);
+                  } catch (err) {
+                    showSnackbar(err.message || `Failed to delete ${modal.confirm.item.email ? "user" : "event"}`, "error");
+                  }
+                  setModal(prev => ({
+                    ...prev,
+                    confirm: { ...prev.confirm, open: false }
+                  }));
+                }}
+              >
+                Confirm {modal.confirm.type}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-      {/* View User Details Dialog */}
-      <Dialog
-        open={viewUserDialog.open}
-        onClose={() => setViewUserDialog({ open: false, user: null })}
-      >
-        <DialogTitle>User Details</DialogTitle>
-        <DialogContent>
-          {viewUserDialog.user ? (
-            <Box>
-              <Typography variant="subtitle1">
-                <strong>Name:</strong> {viewUserDialog.user.name}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Email:</strong> {viewUserDialog.user.email}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Role:</strong>{" "}
-                {viewUserDialog.user.role?.charAt(0).toUpperCase() +
-                  viewUserDialog.user.role?.slice(1)}
-              </Typography>
-              <Typography variant="subtitle1">
-                <strong>Status:</strong>{" "}
-                {viewUserDialog.user.isSuspended ? "Suspended" : "Active"}
-              </Typography>
-              {/* Add more details as needed */}
-            </Box>
-          ) : (
-            <Typography>No user details to display.</Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setViewUserDialog({ open: false, user: null })}
-          >
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+      {/* View User Dialog */}
+      {modal.viewUser.open && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>User Details</h3>
+            {modal.viewUser.user ? (
+              <div className="user-details">
+                <p><strong>Name:</strong> {modal.viewUser.user.name}</p>
+                <p><strong>Email:</strong> {modal.viewUser.user.email}</p>
+                <p><strong>Role:</strong>{" "}
+                  <span className={`role-badge ${modal.viewUser.user.role}`}>
+                    {modal.viewUser.user.role?.charAt(0).toUpperCase() + modal.viewUser.user.role?.slice(1)}
+                  </span>
+                </p>
+                <p><strong>Status:</strong>{" "}
+                  <span className={`status-badge ${modal.viewUser.user.isSuspended ? "suspended" : "active"}`}>
+                    {modal.viewUser.user.isSuspended ? "Suspended" : "Active"}
+                  </span>
+                </p>
+              </div>
+            ) : (
+              <p>No user details to display</p>
+            )}
+            <div className="modal-actions">
+              <button 
+                className="close-button"
+                onClick={() => setModal(prev => ({
+                  ...prev,
+                  viewUser: { ...prev.viewUser, open: false }
+                }))}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Snackbar */}
+      {modal.snackbar.open && (
+        <div className={`snackbar ${modal.snackbar.type}`}>
+          {modal.snackbar.message}
+          <button onClick={closeSnackbar} className="snackbar-close">
+            &times;
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -1,34 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Avatar,
-  Box,
-  Drawer,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  useTheme,
-  useMediaQuery
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Home,
-  Event,
-  Dashboard,
-  Person,
-  Add,
-  ExitToApp,
-  Login
-} from '@mui/icons-material';
 import { useAuth } from '../../hooks/useAuth';
+import './Navigation.css';
+
+// استيراد الأيقونات من react-icons
+import { FaHome, FaCalendarAlt, FaChartBar, FaUser, FaPlus, FaSignOutAlt, FaSignInAlt, FaBars } from 'react-icons/fa';
 
 const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -36,8 +12,6 @@ const Navigation = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -59,19 +33,19 @@ const Navigation = () => {
 
   const getMenuItems = () => {
     const items = [
-      { text: 'Home', icon: <Home />, path: '/', roles: ['visitor', 'subscriber', 'organizer', 'admin'] },
-      { text: 'Events', icon: <Event />, path: '/events', roles: ['visitor', 'subscriber', 'organizer', 'admin'] }
+      { text: 'Home', icon: <FaHome />, path: '/', roles: ['visitor', 'subscriber', 'organizer', 'admin'] },
+      { text: 'Events', icon: <FaCalendarAlt />, path: '/events', roles: ['visitor', 'subscriber', 'organizer', 'admin'] }
     ];
 
     if (user) {
       items.push(
-        { text: 'Dashboard', icon: <Dashboard />, path: '/dashboard', roles: ['subscriber', 'organizer', 'admin'] },
-        { text: 'Profile', icon: <Person />, path: '/profile', roles: ['subscriber', 'organizer', 'admin'] }
+        { text: 'Dashboard', icon: <FaChartBar />, path: '/dashboard', roles: ['subscriber', 'organizer', 'admin'] },
+        { text: 'Profile', icon: <FaUser />, path: '/profile', roles: ['subscriber', 'organizer', 'admin'] }
       );
 
       if (user.role === 'organizer' || user.role === 'admin') {
         items.push(
-          { text: 'Create Event', icon: <Add />, path: '/events/create', roles: ['organizer', 'admin'] }
+          { text: 'Create Event', icon: <FaPlus />, path: '/events/create', roles: ['organizer', 'admin'] }
         );
       }
     }
@@ -84,154 +58,102 @@ const Navigation = () => {
   const menuItems = getMenuItems();
 
   const drawer = (
-    <Box sx={{ width: 250 }} role="presentation">
-      <List>
+    <div className="drawer-container" role="presentation">
+      <ul className="drawer-list">
         {menuItems.map((item) => (
-          <ListItem
+          <li
             key={item.text}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            onClick={() => setMobileOpen(false)}
-            sx={{ cursor: 'pointer' }}
+            className={`drawer-item ${location.pathname === item.path ? 'active' : ''}`}
           >
-            <ListItemIcon>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
+            <Link to={item.path} onClick={() => setMobileOpen(false)}>
+              <span className="item-icon">{item.icon}</span>
+              <span className="item-text">{item.text}</span>
+            </Link>
+          </li>
         ))}
         {!user && (
-          <ListItem
-            component={Link}
-            to="/login"
-            onClick={() => setMobileOpen(false)}
-            sx={{ cursor: 'pointer' }}
-          >
-            <ListItemIcon><Login /></ListItemIcon>
-            <ListItemText primary="Login" />
-          </ListItem>
+          <li className="drawer-item">
+            <Link to="/login" onClick={() => setMobileOpen(false)}>
+              <span className="item-icon"><FaSignInAlt /></span>
+              <span className="item-text">Login</span>
+            </Link>
+          </li>
         )}
         {user && (
-          <ListItem onClick={handleLogout} sx={{ cursor: 'pointer' }}>
-            <ListItemIcon><ExitToApp /></ListItemIcon>
-            <ListItemText primary="Logout" />
-          </ListItem>
+          <li className="drawer-item" onClick={handleLogout}>
+            <span className="item-icon"><FaSignOutAlt /></span>
+            <span className="item-text">Logout</span>
+          </li>
         )}
-      </List>
-    </Box>
+      </ul>
+    </div>
   );
 
   return (
     <>
-      <AppBar position="static" sx={{ backgroundColor: 'primary.main' }}>
-        <Toolbar>
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/"
-            sx={{
-              flexGrow: 1,
-              textDecoration: 'none',
-              color: 'inherit',
-              fontWeight: 'bold'
-            }}
+      <header className="app-bar">
+        <div className="toolbar">
+          <button
+            className="mobile-menu-button"
+            aria-label="open drawer"
+            onClick={handleDrawerToggle}
           >
-            EventPro
-          </Typography>
+            <FaBars />
+          </button>
 
-          {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {menuItems.map((item) => (
-                <Button
-                  key={item.text}
-                  color="inherit"
-                  component={Link}
-                  to={item.path}
-                  startIcon={item.icon}
-                  sx={{
-                    backgroundColor: location.pathname === item.path ? 'rgba(255,255,255,0.1)' : 'transparent'
-                  }}
+          <h1 className="app-title">
+            <Link to="/">EventPro</Link>
+          </h1>
+
+          <div className="desktop-menu">
+            {menuItems.map((item) => (
+              <Link
+                key={item.text}
+                to={item.path}
+                className={`desktop-menu-item ${location.pathname === item.path ? 'active' : ''}`}
+              >
+                <span className="item-icon">{item.icon}</span>
+                {item.text}
+              </Link>
+            ))}
+          </div>
+
+          <div className="user-section">
+            {user ? (
+              <>
+                <button
+                  className="user-avatar-button"
+                  aria-label="account of current user"
+                  onClick={handleProfileMenuOpen}
                 >
-                  {item.text}
-                </Button>
-              ))}
-            </Box>
-          )}
+                  <div className="user-avatar">
+                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                </button>
+                {anchorEl && (
+                  <div className="profile-menu">
+                    <div className="menu-item" onClick={() => { navigate('/profile'); handleMenuClose(); }}>
+                      <span className="menu-icon"><FaUser /></span> Profile
+                    </div>
+                    <div className="menu-item" onClick={handleLogout}>
+                      <span className="menu-icon"><FaSignOutAlt /></span> Logout
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link to="/login" className="login-button">
+                <span className="item-icon"><FaSignInAlt /></span> Login
+              </Link>
+            )}
+          </div>
+        </div>
+      </header>
 
-          {!isMobile && (
-            <Box sx={{ ml: 2 }}>
-              {user ? (
-                <>
-                  <IconButton
-                    size="large"
-                    edge="end"
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    onClick={handleProfileMenuOpen}
-                    color="inherit"
-                  >
-                    <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
-                      {user.name?.charAt(0).toUpperCase() || 'U'}
-                    </Avatar>
-                  </IconButton>
-                  <Menu
-                    anchorEl={anchorEl}
-                    anchorOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    keepMounted
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'right',
-                    }}
-                    open={Boolean(anchorEl)}
-                    onClose={handleMenuClose}
-                  >
-                    <MenuItem onClick={() => { navigate('/profile'); handleMenuClose(); }}>
-                      <Person sx={{ mr: 1 }} /> Profile
-                    </MenuItem>
-                    <MenuItem onClick={handleLogout}>
-                      <ExitToApp sx={{ mr: 1 }} /> Logout
-                    </MenuItem>
-                  </Menu>
-                </>
-              ) : (
-                <Button color="inherit" component={Link} to="/login" startIcon={<Login />}>
-                  Login
-                </Button>
-              )}
-            </Box>
-          )}
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 250 },
-        }}
-      >
+      <div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}>
+        <div className="drawer-backdrop" onClick={handleDrawerToggle}></div>
         {drawer}
-      </Drawer>
+      </div>
     </>
   );
 };

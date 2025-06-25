@@ -1,52 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import apiService from "../../utils/apiService";
+import "./AdminDashboard.css";
+import "./SubscriberDashboard.css"; // Fichier de styles personnalisé
 import {
-  Container,
-  Typography,
-  CircularProgress,
-  Alert,
-  Paper,
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Button,
-  Chip,
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Avatar, // Added Avatar import
-} from "@mui/material";
-import {
-  EventAvailable,
-  Star,
-  TrendingUp,
-  LocalActivity,
-  Explore,
-} from "@mui/icons-material";
+  FaCalendarAlt,
+  FaUsers,
+  FaStar,
+  FaEye,
+  FaMapMarkerAlt,
+  FaUserTie,
+  FaPlus,
+  FaSpinner,
+  FaTicketAlt,
+  FaHeart,
+  FaRegClock,
+} from "react-icons/fa";
 
 const SubscriberDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [recommendedEvents, setRecommendedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingRecs, setLoadingRecs] = useState(true);
   const [error, setError] = useState(null);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
   const [requesting, setRequesting] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Indisponible";
+    const options = { day: "numeric", month: "long", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("fr-FR", options);
+  };
 
   const handleRequestOrganizer = async () => {
     setRequesting(true);
@@ -56,12 +43,11 @@ const SubscriberDashboard = () => {
       const data = await apiService.request("/request-organizer", {
         method: "POST",
       });
-
-      setRequestMessage(data.message || "Request sent successfully.");
+      setRequestMessage(data.message || "Demande envoyée avec succès.");
     } catch (error) {
-      console.error("Organizer request error:", error);
+      console.error("Erreur lors de la demande d'organisateur :", error);
       setRequestMessage(
-        error.message || "Failed to send organizer request. Please try again."
+        error.message || "Échec de l'envoi de la demande. Veuillez réessayer."
       );
     } finally {
       setRequesting(false);
@@ -77,26 +63,24 @@ const SubscriberDashboard = () => {
         try {
           const [userRegs, allEventsResponse] = await Promise.all([
             apiService.getUserRegistrations(user.id),
-            apiService.getEvents(), // Fetch all events for recommendations
+            apiService.getEvents(),
           ]);
 
           setRegisteredEvents(userRegs);
 
-          // Filter out events user is already registered for and select random ones
           const registeredEventIds = new Set(userRegs.map((e) => e.id));
           const availableForRecommendation = allEventsResponse.filter(
             (event) =>
               !registeredEventIds.has(event.id) && event.status === "upcoming"
           );
 
-          // Shuffle and pick a few recommendations (e.g., up to 3)
           const shuffled = availableForRecommendation.sort(
             () => 0.5 - Math.random()
           );
           setRecommendedEvents(shuffled.slice(0, 3));
         } catch (err) {
-          console.error("Failed to fetch registered events:", err);
-          setError(err.message || "Could not load your registered events.");
+          console.error("Erreur lors du chargement :", err);
+          setError(err.message || "Impossible de charger vos événements.");
         } finally {
           setLoading(false);
           setLoadingRecs(false);
@@ -104,268 +88,232 @@ const SubscriberDashboard = () => {
       };
       fetchRegisteredAndAllEvents();
     } else {
-      setLoading(false); // No user, or user.id is not available
+      setLoading(false);
       setLoadingRecs(false);
     }
   }, [user]);
 
-  const StatCard = ({ title, value, icon, color = "primary.main" }) => (
-    <Grid item xs={12} sm={6} md={3}>
-      <Paper
-        elevation={3}
-        sx={{ p: 2, display: "flex", alignItems: "center", height: "100%" }}
-      >
-        <Avatar sx={{ bgcolor: color, mr: 2 }}>{icon}</Avatar>
-        <Box>
-          <Typography variant="h6" component="div">
-            {value}
-          </Typography>
-          <Typography color="text.secondary">{title}</Typography>
-        </Box>
-      </Paper>
-    </Grid>
-  );
-
   if (loading) {
     return (
-      <Container sx={{ py: 4, textAlign: "center" }}>
-        <CircularProgress />
-        <Typography variant="h6" mt={2}>
-          Loading your events...
-        </Typography>
-      </Container>
+      <div className="subscriber-container">
+        <div className="loading">
+          <FaSpinner className="loading-spinner" />
+          <p>Chargement des événements...</p>
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container sx={{ py: 4 }}>
-        <Alert severity="error">{error}</Alert>
-      </Container>
+      <div className="subscriber-container">
+        <div className="error-message">{error}</div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          My Dashboard
-        </Typography>
-        <Typography variant="h6" color="text.secondary" paragraph>
-          Welcome, {user?.name}! Here's an overview of your activity and
-          options.
-        </Typography>
-      </Box>
+    <div className="admin-container">
+      {/* En-tête */}
+      <header className="admin-header">
+        <h1>Tableau de bord de l'abonné</h1>
+        <p>
+          Bienvenue {user?.name} ! Voici un aperçu de vos activités et options.
+        </p>
+      </header>
 
-      {/* Quick Stats Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h5"
-          component="h2"
-          gutterBottom
-          fontWeight="medium"
-          sx={{ display: "flex", alignItems: "center" }}
-        >
-          <TrendingUp sx={{ mr: 1 }} /> Quick Stats
-        </Typography>
-        <Grid container spacing={3}>
-          <StatCard
-            title="Registered Events"
-            value={registeredEvents.length}
-            icon={<EventAvailable />}
-            color="primary.main"
-          />
-          <StatCard
-            title="Upcoming Events (Registered)"
-            value={
-              registeredEvents.filter((e) => e.status === "upcoming").length
-            }
-            icon={<LocalActivity />}
-            color="success.main"
-          />
-          <StatCard
-            title="Favorite Category (Placeholder)"
-            value={
-              registeredEvents.length > 0 ? registeredEvents[0].category : "N/A"
-            }
-            icon={<Star />}
-            color="warning.main"
-          />
-          {/* Add more StatCard components as needed */}
-        </Grid>
-      </Box>
+      {/* Statistiques rapides */}
+      <div className="stats-grid">
+        <div className="stat-card" style={{ backgroundColor: "#f0f7ff"}}>
+          <div className="stat-icon">
+            <FaCalendarAlt style={{ color: "#3f51b5" }} />
+          </div>
+          <div className="stat-value">{registeredEvents.length}</div>
+          <div className="stat-label">Événements enregistrés</div>
+        </div>
 
-      {/* My Registered Events Section */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Typography
-          variant="h5"
-          component="h2"
-          gutterBottom
-          fontWeight="medium"
-        >
-          My Registered Events
-        </Typography>
+        <div className="stat-card" style={{ backgroundColor: "#f0fff4" }}>
+          <div className="stat-icon">
+            <FaUsers style={{ color: "#4caf50" }} />
+          </div>
+          <div className="stat-value">
+            {registeredEvents.filter((e) => e.status === "upcoming").length}
+          </div>
+          <div className="stat-label">Événements à venir</div>
+        </div>
+
+        <div className="stat-card" style={{ backgroundColor: "#fff8f0" }}>
+          <div className="stat-icon">
+            <FaStar style={{ color: "#ff9800" }} />
+          </div>
+          <div className="stat-value">
+            {registeredEvents.length > 0
+              ? registeredEvents[0].category
+              : "Indisponible"}
+          </div>
+          <div className="stat-label">Catégorie préférée</div>
+        </div>
+      </div>
+
+      {/* Événements enregistrés */}
+      <div className="subscriber-content">
+        <h2 className="section-title">Mes événements</h2>
+
         {registeredEvents.length === 0 ? (
-          <Box sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="subtitle1" gutterBottom>
-              No Registered Events
-            </Typography>
-            <Typography color="text.secondary">
-              You haven't registered for any events yet. Explore events and sign
-              up!
-            </Typography>
-          </Box>
+          <div className="empty-message">
+            <p>Vous n'êtes inscrit à aucun événement pour le moment.</p>
+            <button
+              className="subscriber-primary-button"
+              onClick={() => navigate("/events")}
+            >
+              <FaPlus /> Explorer les événements
+            </button>
+          </div>
         ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Event Title</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Location</TableCell>
-                  <TableCell>Organizer</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+          <div className="events-table-container">
+            <table className="subscriber-data-table">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Date</th>
+                  <th>Lieu</th>
+                  <th>Organisateur</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
                 {registeredEvents.map((event) => (
-                  <TableRow hover key={event.id}>
-                    <TableCell component="th" scope="row">
-                      {event.title}
-                    </TableCell>
-                    <TableCell>{formatDate(event.date)}</TableCell>
-                    <TableCell>{event.location}</TableCell>
-                    <TableCell>{event.organizer}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={event.status || "N/A"}
-                        color={
-                          event.status === "upcoming"
-                            ? "success"
-                            : event.status === "past"
-                            ? "default"
-                            : "warning"
-                        }
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        component={RouterLink}
-                        to={`/events/${event.id}`}
+                  <tr key={event.id}>
+                    <td>
+                      <div className="event-title">
+                        {event.featured && (
+                          <FaHeart className="featured-icon" />
+                        )}
+                        {event.title}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="event-date">
+                        <FaRegClock className="date-icon" />
+                        {formatDate(event.date)}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="event-location">
+                        <FaMapMarkerAlt className="location-icon" />
+                        {event.location}
+                      </div>
+                    </td>
+                    <td>{event.organizer}</td>
+                    <td>
+                      <span className={`status-badge ${event.status}`}>
+                        {event.status === "upcoming" ? "À venir" : "Terminé"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="subscriber-action-button"
+                        onClick={() => navigate(`/events/${event.id}`)}
+                        title="Voir les détails"
                       >
-                        View Event
-                      </Button>
-                    </TableCell>
-                  </TableRow>
+                        <FaEye />
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
         )}
-      </Paper>
+      </div>
 
-      {/* Recommended Events Section */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-        <Typography
-          variant="h5"
-          component="h2"
-          gutterBottom
-          fontWeight="medium"
-          sx={{ display: "flex", alignItems: "center" }}
-        >
-          <Explore sx={{ mr: 1 }} /> Recommended For You
-        </Typography>
+      {/* Recommandations */}
+      <div className="subscriber-content">
+        <h2 className="section-title">Recommandations</h2>
+
         {loadingRecs ? (
-          <Box sx={{ textAlign: "center", py: 3 }}>
-            <CircularProgress />
-          </Box>
+          <div className="loading">
+            <FaSpinner className="loading-spinner" />
+            <p>Chargement des recommandations...</p>
+          </div>
         ) : recommendedEvents.length === 0 ? (
-          <Typography
-            color="text.secondary"
-            sx={{ textAlign: "center", py: 2 }}
-          >
-            No specific recommendations for you at the moment. Explore all
-            events!
-          </Typography>
+          <div className="empty-message">
+            Aucune recommandation disponible pour le moment.
+          </div>
         ) : (
-          <Grid container spacing={2}>
+          <div className="recommended-events-grid">
             {recommendedEvents.map((event) => (
-              <Grid item xs={12} md={4} key={event.id}>
-                <Card
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                  }}
+              <div key={event.id} className="event-card">
+                <div className="event-card-header">
+                  <h3>{event.title}</h3>
+                  <span className="event-category">{event.category}</span>
+                </div>
+                <div className="event-card-details">
+                  <div className="event-detail">
+                    <FaCalendarAlt className="detail-icon" />
+                    {formatDate(event.date)}
+                  </div>
+                  <div className="event-detail">
+                    <FaMapMarkerAlt className="detail-icon" />
+                    {event.location}
+                  </div>
+                  <div className="event-detail">
+                    <FaTicketAlt className="detail-icon" />
+                    {event.price === 0 ? "Gratuit" : `${event.price} €`}
+                  </div>
+                </div>
+                <button
+                  className="subscriber-primary-button"
+                  onClick={() => navigate(`/events/${event.id}`)}
                 >
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" component="div" noWrap>
-                      {event.title}
-                    </Typography>
-                    <Chip
-                      label={event.category}
-                      size="small"
-                      sx={{ my: 0.5 }}
-                      color="secondary"
-                    />
-                    <Typography variant="body2" color="text.secondary" noWrap>
-                      {event.location}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {formatDate(event.date)}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      size="small"
-                      component={RouterLink}
-                      to={`/events/${event.id}`}
-                      startIcon={<EventAvailable />}
-                    >
-                      View Event
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
+                  <FaEye /> Voir l'événement
+                </button>
+              </div>
             ))}
-          </Grid>
+          </div>
         )}
-      </Paper>
+      </div>
 
-      {/* Account Actions Section (e.g., Request to become Organizer) */}
+      {/* Demande de passage à organisateur */}
       {user && user.role === "subscriber" && (
-        <Paper elevation={2} sx={{ p: 3, mt: 4 }}>
-          <Typography variant="h5" gutterBottom fontWeight="medium">
-            Upgrade Your Account
-          </Typography>
-          <Typography paragraph color="text.secondary">
-            Interested in creating and managing your own events? Request to
-            become an organizer to unlock more features.
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleRequestOrganizer}
-            disabled={requesting}
-          >
-            {requesting ? "Sending Request..." : "Request Organizer Privileges"}
-          </Button>
-          {requestMessage && (
-  <Alert
-    sx={{ mt: 2 }}
-    severity={requestMessage.toLowerCase().includes("succès") || requestMessage.toLowerCase().includes("successfully") ? "success" : "error"}
-  >
-    {requestMessage}
-  </Alert>
-)}
-
-        </Paper>
+        <div className="subscriber-content upgrade-account-section">
+          <h2 className="section-title">Passer Organisateur</h2>
+          <div className="upgrade-card">
+            <p>
+              Vous souhaitez créer et gérer vos propres événements ? Demandez
+              les privilèges d'organisateur pour débloquer plus de
+              fonctionnalités.
+            </p>
+            <button
+              className="subscriber-primary-button"
+              onClick={handleRequestOrganizer}
+              disabled={requesting}
+            >
+              {requesting ? (
+                <>
+                  <FaSpinner className="loading-spinner" /> Envoi de la
+                  demande...
+                </>
+              ) : (
+                <>
+                  <FaUserTie /> Demander les privilèges d'organisateur
+                </>
+              )}
+            </button>
+            {requestMessage && (
+              <div
+                className={`subscriber-message ${
+                  requestMessage.includes("Échec") ? "error" : "success"
+                }`}
+              >
+                {requestMessage}
+              </div>
+            )}
+          </div>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 
