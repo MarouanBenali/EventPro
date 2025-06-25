@@ -170,6 +170,8 @@ class ApiService {
     return await this.request("/user");
   }
 
+  // Organizer requests
+
   async getOrganizerRequests() {
     return await this.request("/organizer-requests");
   }

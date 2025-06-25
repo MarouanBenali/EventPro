@@ -568,78 +568,75 @@ const AdminDashboard = () => {
             </Table>
           </TableContainer>
         </TabPanel>
+{/* Organizer Requests Tab */}
+<TabPanel value={tabValue} index={2}>
+  <Typography variant="h6" gutterBottom>
+    Pending Organizer Requests
+  </Typography>
 
-        {/* Organizer Requests Tab */}
-        <TabPanel value={tabValue} index={2}>
-          <Typography variant="h6" gutterBottom>
-            Pending Organizer Requests
-          </Typography>
+  {loadingRequests ? (
+    <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+      <CircularProgress />
+      <Typography sx={{ ml: 2 }}>Loading requests...</Typography>
+    </Box>
+  ) : requestsError ? (
+    <Alert severity="error">{requestsError}</Alert>
+  ) : organizerRequestsData.filter((r) => r.statut === "pending").length > 0 ? (
+    <Grid container spacing={2}>
+      {organizerRequestsData
+        .filter((r) => r.statut === "pending")
+        .map((request) => (
+          <Grid item xs={12} md={6} key={request.id}>
+            <Card variant="outlined">
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {request.user?.name || "Unknown User"}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  gutterBottom
+                >
+                  {request.user?.email || "N/A"}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  Requested on:{" "}
+                  {new Date(request.created_at).toLocaleDateString()}
+                </Typography>
+                <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
+                  <Button
+                    variant="contained"
+                    color="success"
+                    startIcon={<Check />}
+                    onClick={() =>
+                      handleOrganizerRequest(request.id, "approve")
+                    }
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Close />}
+                    onClick={() =>
+                      handleOrganizerRequest(request.id, "reject")
+                    }
+                  >
+                    Reject
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+    </Grid>
+  ) : (
+    <Alert severity="info">
+      No pending organizer requests at this time.
+    </Alert>
+  )}
+</TabPanel>
 
-          {loadingRequests ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
-              <CircularProgress />
-              <Typography sx={{ ml: 2 }}>Loading requests...</Typography>
-            </Box>
-          ) : requestsError ? (
-            <Alert severity="error">{requestsError}</Alert>
-          ) : organizerRequestsData.filter((r) => r.status === "pending")
-              .length > 0 ? (
-            <Grid container spacing={2}>
-              {organizerRequestsData
-                .filter((r) => r.status === "pending")
-                .map((request) => (
-                  <Grid item xs={12} md={6} key={request.id}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="h6" gutterBottom>
-                          {request.userName ||
-                            request.user?.name ||
-                            "Unknown User"}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          gutterBottom
-                        >
-                          {request.userEmail || request.user?.email || "N/A"}
-                        </Typography>
-                        <Typography variant="body2" gutterBottom>
-                          Requested on:{" "}
-                          {new Date(request.requestDate).toLocaleDateString()}
-                        </Typography>
-                        <Box sx={{ mt: 2, display: "flex", gap: 1 }}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            startIcon={<Check />}
-                            onClick={() =>
-                              handleOrganizerRequest(request.id, "approve")
-                            }
-                          >
-                            Approve
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Close />}
-                            onClick={() =>
-                              handleOrganizerRequest(request.id, "reject")
-                            }
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
-          ) : (
-            <Alert severity="info">
-              No pending organizer requests at this time.
-            </Alert>
-          )}
-        </TabPanel>
       </Paper>
 
       {/* Action Menu */}

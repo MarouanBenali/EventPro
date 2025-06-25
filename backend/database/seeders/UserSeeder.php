@@ -27,7 +27,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 20; $i++) {
             User::create([
                 'name' => "User $i",
                 'email' => "user$i@eventpro.com",

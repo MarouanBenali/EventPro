@@ -48,33 +48,25 @@ const SubscriberDashboard = () => {
   const [requesting, setRequesting] = useState(false);
   const [requestMessage, setRequestMessage] = useState("");
 
-const handleRequestOrganizer = async () => {
-  try {
-    const response = await fetch('http://localhost:8000/api/request-organizer', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user?.token}`,
-      },
-    });
+  const handleRequestOrganizer = async () => {
+    setRequesting(true);
+    setRequestMessage("");
 
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
+    try {
+      const data = await apiService.request("/request-organizer", {
+        method: "POST",
+      });
+
+      setRequestMessage(data.message || "Request sent successfully.");
+    } catch (error) {
+      console.error("Organizer request error:", error);
+      setRequestMessage(
+        error.message || "Failed to send organizer request. Please try again."
+      );
+    } finally {
+      setRequesting(false);
     }
-
-    // ✅ تحقق مما إذا كانت الاستجابة تحتوي على جسم
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : {};
-
-    alert('Organizer request sent successfully!');
-    console.log('Response:', data);
-
-  } catch (error) {
-    console.error('Organizer request error:', error);
-    alert('Failed to send organizer request.');
-  }
-};
-
+  };
 
   useEffect(() => {
     if (user && user.id) {
@@ -363,10 +355,14 @@ const handleRequestOrganizer = async () => {
             {requesting ? "Sending Request..." : "Request Organizer Privileges"}
           </Button>
           {requestMessage && (
-            <Typography sx={{ mt: 2 }} color="secondary">
-              {requestMessage}
-            </Typography>
-          )}
+  <Alert
+    sx={{ mt: 2 }}
+    severity={requestMessage.toLowerCase().includes("succès") || requestMessage.toLowerCase().includes("successfully") ? "success" : "error"}
+  >
+    {requestMessage}
+  </Alert>
+)}
+
         </Paper>
       )}
     </Container>

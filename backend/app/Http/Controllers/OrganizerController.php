@@ -2,75 +2,82 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\DemandeOrganisateur;
 use Illuminate\Http\Request;
-use App\Http\Controllers\NotificationController;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
-class OrganizerController extends Controller{
-    // Faire une demande pour devenir organisateur
-    public function requestOrganizer($userId){
-        // Vérifier si l'utilisateur existe
-        $user = User::findOrFail($userId);
-
-        // Vérifier si l'utilisateur a déjà une demande en attente ou approuvée
-        $existingRequest = DemandeOrganisateur::where('user_id', $user->id)
-            ->whereIn('statut', ['en_attente', 'approuve'])->exists();
-
-        if ($existingRequest) {
-            return response()->json(['message' => 'L\'utilisateur a déjà une demande en attente ou approuvée.'], 400);
-        }
-
-        // Créer une nouvelle demande
-        DemandeOrganisateur::create([
-            'user_id' => $user->id,
-            'statut' => 'en_attente',
-        ]);
-
-        return response()->json(['message' => 'Demande envoyée avec succès.'], 200);
+class OrganizerController extends Controller
+{
+    // Affiche toutes les demandes d'organisateur avec les informations utilisateur
+    public function index()
+    {
+        $requests = DemandeOrganisateur::with('user')->get();
+        return response()->json($requests);
     }
 
-    // Approuver la demande pour devenir organisateur
-    public function approveRequest($userId){
-        // Vérifier si la demande existe et est en attente
-        $request = DemandeOrganisateur::where('user_id', $userId)
-            ->where('statut', 'en_attente')->first();
-
-        if (!$request) {
-            return response()->json(['message' => 'Aucune demande en attente trouvée pour cet utilisateur.'], 400);
-        }
-
-        // Mettre à jour la demande pour l'approuver
+    // Approuve une demande d'organisateur
+    public function approve($id)
+    {
+        $request = DemandeOrganisateur::findOrFail($id);
         $request->statut = 'approuve';
         $request->save();
 
-        // Mettre à jour le rôle de l'utilisateur pour être organisateur
-        $user = User::findOrFail($userId);
-        $user->role = 'organisateur';
-        $user->save();
-
-        $notificationController = new NotificationController();
-        $notificationController->store($userId, "Votre demande a été approuvée", "admin");
-
-
-        return response()->json(['message' => 'Demande approuvée avec succès.'], 200);
-    }
-
-    // Refuser la demande pour devenir organisateur
-    public function declineRequest($userId){
-        // Vérifier si la demande existe et est en attente
-        $request = DemandeOrganisateur::where('user_id', $userId)
-            ->where('statut', 'en_attente')->first();
-
-        if (!$request) {
-            return response()->json(['message' => 'Aucune demande en attente trouvée pour cet utilisateur.'], 400);
+        $user = $request->user;
+        if ($user) {
+            $user->role = 'organizer'; // Assurez-vous que ce rôle existe dans votre logique
+            $user->save();
         }
 
-        // Mettre à jour la demande pour la refuser
+        return response()->json(['message' => 'Demande approuvée avec succès.']);
+    }
+
+    // Rejette une demande d'organisateur
+    public function reject($id)
+    {
+        $request = DemandeOrganisateur::findOrFail($id);
         $request->statut = 'rejete';
         $request->save();
 
-        return response()->json(['message' => 'Demande rejetée avec succès.'], 200);
+        return response()->json(['message' => 'Demande rejetée avec succès.']);
+    }
+
+    // Soumet une nouvelle demande pour devenir organisateur
+    public function request(Request $request)
+    {
+        $user = $request->user();
+
+        // Vérifie si l'utilisateur est déjà organisateur
+        if ($user->role === 'organizer') {
+            return response()->json(['message' => 'Vous êtes déjà un organisateur.'], 400);
+        }
+
+        // Récupère la dernière demande existante
+        $lastRequest = DemandeOrganisateur::where('user_id', $user->id)
+            ->latest('updated_at')
+            ->first();
+
+        if ($lastRequest) {
+            if ($lastRequest->statut === 'pending') {
+                return response()->json(['message' => 'Vous avez déjà soumis une demande en attente.'], 400);
+            }
+
+            if ($lastRequest->statut === 'rejete') {
+                $nextAllowedDate = $lastRequest->updated_at->addDays(30);
+                if (Carbon::now()->lt($nextAllowedDate)) {
+                    $daysLeft = $nextAllowedDate->diffInDays(Carbon::now());
+                    return response()->json([
+                        'message' => "Votre dernière demande a été rejetée. Vous devez attendre encore $daysLeft jours avant de pouvoir soumettre une nouvelle demande."
+                    ], 400);
+                }
+            }
+        }
+
+        // Crée une nouvelle demande avec statut "pending"
+        $demande = new DemandeOrganisateur();
+        $demande->user_id = $user->id;
+        $demande->statut = 'pending';
+        $demande->save();
+
+        return response()->json(['message' => 'Demande envoyée avec succès.']);
     }
 }

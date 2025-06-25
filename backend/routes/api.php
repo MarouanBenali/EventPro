@@ -6,14 +6,12 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\OrganizerRequestController;
-
+use App\Http\Controllers\OrganizerController;
 
 // Authentication routes
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
 
 // Public routes
 Route::get('/events', [EventController::class, 'index']);
@@ -40,35 +38,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}/registrations', [UserController::class, 'getUserRegistrations']);
     Route::put('/users/{id}', [UserController::class, 'update']);
 
-    // Admin User Management routes (example of grouping)
-    Route::prefix('admin')->middleware('auth:sanctum')->group(function () { // Ensure this is protected, potentially with more specific admin middleware
+    // Admin User Management routes
+    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
         Route::get('/users', [UserController::class, 'getAllUsers']);
         Route::delete('/users/{id}', [UserController::class, 'deleteUserByAdmin']);
     });
 
     // Organizer Requests
-    Route::get('/organizer-requests', [OrganizerRequestController::class, 'index']);
-    Route::post('/organizer-requests/{id}/approve', [OrganizerRequestController::class, 'approve']);
-    Route::post('/organizer-requests/{id}/reject', [OrganizerRequestController::class, 'reject']);
+    Route::get('/organizer-requests', [OrganizerController::class, 'index']);
+    Route::post('/organizer-requests/{id}/approve', [OrganizerController::class, 'approve']);
+    Route::post('/organizer-requests/{id}/reject', [OrganizerController::class, 'reject']);
 
-   Route::post('/request-organizer', function (Request $request) {
-    $user = $request->user();
-
-    if (!$user) {
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-
-    $existing = \App\Models\DemandeOrganisateur::where('user_id', $user->id)->first();
-    if ($existing) {
-        return response()->json(['message' => 'You already submitted a request.'], 400);
-    }
-
-    $demande = new \App\Models\DemandeOrganisateur();
-    $demande->user_id = $user->id;
-    $demande->statut = 'en_attente';
-    $demande->save();
-
-    return response()->json(['message' => 'Organizer request submitted.']);
-});
-
+    Route::post('/request-organizer', [OrganizerController::class, 'request']);
 });
