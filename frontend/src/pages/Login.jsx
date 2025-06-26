@@ -1,52 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import {
-  Container,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from '@mui/material';
-import { useAuth } from '../hooks/useAuth';
+import React, { useState } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import "./Login.css"; // استيراد ملف التنسيق الخارجي
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = location.state?.from?.pathname || "/dashboard";
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-    setError('');
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
+    setError("");
     try {
       await login(formData.email, formData.password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || "Login failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -54,117 +34,90 @@ const Login = () => {
 
   const fillDemoCredentials = (role) => {
     const credentials = {
-      admin: { email: 'admin@eventpro.com', password: 'admin123' },
-      organizer: { email: 'organizer@eventpro.com', password: 'organizer123' },
-      subscriber: { email: 'user@eventpro.com', password: 'user123' }
+      admin: { email: "admin@eventpro.com", password: "admin123" },
+      organizer: { email: "organizer@eventpro.com", password: "organizer123" },
+      subscriber: { email: "user@eventpro.com", password: "user123" },
     };
-    
     const creds = credentials[role];
-    if (creds) {
-      setFormData(creds);
-    }
+    if (creds) setFormData(creds);
   };
 
   return (
-    <Container component="main" maxWidth="sm">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography component="h1" variant="h4" align="center" gutterBottom>
-            Sign In
-          </Typography>
-          
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+    <main className="login-main">
+      <section className="login-section">
+        <h1>Sign In</h1>
 
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
+        {error && <div className="login-error">{error}</div>}
+
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">Email Address</label>
+          <input
+            className="login-input"
+            type="email"
+            name="email"
+            id="email"
+            required
+            autoComplete="email"
+            autoFocus
+            value={formData.email}
+            onChange={handleChange}
+          />
+
+          <label htmlFor="password">Password</label>
+          <input
+            className="login-input"
+            type="password"
+            name="password"
+            id="password"
+            required
+            autoComplete="current-password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+
+          <button
+            type="submit"
+            className="lg-button"
+            disabled={loading}
+          >
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
+        </form>
+
+        <div className="demo-container">
+          <p className="demo-title">Demo Accounts (click to fill):</p>
+          <div className="demo-buttons">
+            <button
+              type="button"
+              className="demo-button"
+              onClick={() => fillDemoCredentials("admin")}
             >
-              {loading ? 'Signing In...' : 'Sign In'}
-            </Button>
+              Admin
+            </button>
+            <button
+              type="button"
+              className="demo-button"
+              onClick={() => fillDemoCredentials("organizer")}
+            >
+              Organizer
+            </button>
+            <button
+              type="button"
+              className="demo-button"
+              onClick={() => fillDemoCredentials("subscriber")}
+            >
+              Subscriber
+            </button>
+          </div>
+        </div>
 
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Demo Accounts (click to fill):
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => fillDemoCredentials('admin')}
-                >
-                  Admin
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => fillDemoCredentials('organizer')}
-                >
-                  Organizer
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => fillDemoCredentials('subscriber')}
-                >
-                  Subscriber
-                </Button>
-              </Box>
-            </Box>
-
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Typography variant="body2">
-                Don't have an account?{' '}
-                <Link to="/signup" style={{ textDecoration: 'none' }}>
-                  Sign up here
-                </Link>
-              </Typography>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+        <p className="signup-text">
+          Don't have an account?{" "}
+          <Link to="/signup">Sign up here</Link>
+        </p>
+      </section>
+    </main>
   );
 };
 
 export default Login;
-

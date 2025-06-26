@@ -1,26 +1,26 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Box,
-  Chip,
-  Button,
-  Avatar
-} from '@mui/material';
-import {
-  LocationOn,
-  Schedule,
-  Person,
-  AttachMoney
-} from '@mui/icons-material';
+import { 
+  FaCalendarAlt, 
+  FaMapMarkerAlt, 
+  FaUsers,
+  FaMoneyBillAlt,
+  FaTag
+} from 'react-icons/fa';
+import './EventCard.css';
 
+/**
+ * Composant EventCard pour afficher une carte d'événement
+ * @param {Object} props - Les propriétés du composant
+ * @param {Object} props.event - Les données de l'événement
+ * @param {boolean} [props.showRegisterButton=false] - Afficher le bouton d'inscription
+ * @param {Function} [props.onRegister] - Fonction de gestion de l'inscription
+ */
 const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
+  // Formater la date en français
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
@@ -28,150 +28,105 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
     });
   };
 
+  // Formater l'heure en français
   const formatTime = (timeString) => {
     const [hours, minutes] = timeString.split(':');
     const date = new Date();
     date.setHours(parseInt(hours), parseInt(minutes));
-    return date.toLocaleTimeString('en-US', {
+    return date.toLocaleTimeString('fr-FR', {
       hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+      minute: '2-digit'
     });
   };
 
-  const getStatusColor = (status) => {
+  // Déterminer la classe CSS selon le statut
+  const getStatusClass = (status) => {
     switch (status) {
-      case 'upcoming':
-        return 'success';
-      case 'past':
-        return 'default';
-      default:
-        return 'primary';
+      case 'upcoming': return 'status-upcoming';
+      case 'past': return 'status-past';
+      default: return 'status-default';
     }
   };
 
   return (
-    <Card 
-      sx={{ 
-        height: '100%', 
-        display: 'flex', 
-        flexDirection: 'column',
-        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 4
-        }
-      }}
-    >
-      <CardMedia
-        component="img"
-        height="200"
-        image={event.image}
-        alt={event.title}
-        sx={{ objectFit: 'cover' }}
-      />
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ mb: 2 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-            <Chip 
-              label={event.category} 
-              size="small" 
-              color="primary" 
-              variant="outlined"
-            />
-            <Chip 
-              label={event.status} 
-              size="small" 
-              color={getStatusColor(event.status)}
-            />
-          </Box>
-          
-          <Typography variant="h6" component="h3" gutterBottom>
-            {event.title}
-          </Typography>
-          
-          <Typography 
-            variant="body2" 
-            color="text.secondary" 
-            sx={{ 
-              mb: 2,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
-            }}
-          >
-            {event.description}
-          </Typography>
-        </Box>
+    <div className="event-card">
+      {/* Image de l'événement */}
+      <div className="event-image-container">
+        <img 
+          src={event.image} 
+          alt={event.title}
+          className="event-image"
+          loading="lazy"
+        />
+      </div>
 
-        <Box sx={{ mt: 'auto' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Schedule sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {formatDate(event.date)} at {formatTime(event.time)}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <LocationOn sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {event.location}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-            <Person sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {event.currentParticipants}/{event.maxParticipants} participants
-            </Typography>
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <AttachMoney sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {event.price === 0 ? 'Free' : `$${event.price}`}
-            </Typography>
-          </Box>
+      {/* Contenu de la carte */}
+      <div className="event-content">
+        {/* En-tête avec catégorie et statut */}
+        <div className="event-header">
+          <span className="event-category">
+          {event.category}
+          </span>
+          <span className={`event-status ${getStatusClass(event.status)}`}>
+            {event.status === 'upcoming' ? 'À venir' : 'Terminé'}
+          </span>
+        </div>
 
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+        {/* Titre et description */}
+        <h3 className="event-title">{event.title}</h3>
+        <p className="event-description">{event.description}</p>
+
+        {/* Détails de l'événement */}
+        <div className="event-details">
+          <div className="detail-item">
+            <FaCalendarAlt className="icon" />
+            <span>{formatDate(event.date)} à {formatTime(event.time)}</span>
+          </div>
+          
+          <div className="detail-item">
+            <FaMapMarkerAlt className="icon" />
+            <span>{event.location}</span>
+          </div>
+          
+          <div className="detail-item">
+            <FaUsers className="icon" />
+            <span>{event.currentParticipants}/{event.maxParticipants} participants</span>
+          </div>
+          
+          <div className="detail-item">
+            <FaMoneyBillAlt className="icon" />
+            <span>{event.price === 0 ? 'Gratuit' : `${event.price}€`}</span>
+          </div>
+        </div>
+
+        {/* Tags */}
+        {event.tags?.length > 0 && (
+          <div className="event-tags">
             {event.tags.slice(0, 3).map((tag, index) => (
-              <Chip 
-                key={index} 
-                label={tag} 
-                size="small" 
-                variant="outlined"
-                sx={{ fontSize: '0.7rem' }}
-              />
+              <span key={index} className="event-tag">{tag}</span>
             ))}
-          </Box>
+          </div>
+        )}
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Button
-              component={Link}
-              to={`/events/${event.id}`}
-              variant="outlined"
-              size="small"
+        {/* Actions */}
+        <div className="event-actions">
+          <Link to={`/events/${event.id}`} className="btn btn-outline">
+            Voir détails
+          </Link>
+          
+          {showRegisterButton && event.status === 'upcoming' && (
+            <button
+              className={`btn ${event.currentParticipants >= event.maxParticipants ? 'btn-disabled' : 'btn-primary'}`}
+              onClick={() => onRegister(event.id)}
+              disabled={event.currentParticipants >= event.maxParticipants}
             >
-              View Details
-            </Button>
-            
-            {showRegisterButton && event.status === 'upcoming' && (
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => onRegister(event.id)}
-                disabled={event.currentParticipants >= event.maxParticipants}
-              >
-                {event.currentParticipants >= event.maxParticipants ? 'Full' : 'Register'}
-              </Button>
-            )}
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+              {event.currentParticipants >= event.maxParticipants ? 'Complet' : "S'inscrire"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default EventCard;
-

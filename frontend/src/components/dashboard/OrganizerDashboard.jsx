@@ -42,9 +42,9 @@ const OrganizerDashboard = () => {
   }, [user?.id]);
 
   const stats = [
-    { icon: <FaCalendarAlt />, label: 'Événements', value: events.length, color: "#9c27b0" },
-    { icon: <FaUsers />, label: 'Participants', value: events.reduce((sum, e) => sum + (e.currentParticipants || 0), 0), color: "#3f51b5" },
-    { icon: <FaChartLine />, label: 'Taux de remplissage', value: '85%', color: "#ff9800" }
+    { icon: <FaCalendarAlt />, label: 'Événements', value: events.length, color: "#9c27b0" , bg : "#f0f7ff"},
+    { icon: <FaUsers />, label: 'Participants', value: events.reduce((sum, e) => sum + (e.currentParticipants || 0), 0), color: "#3f51b5" , bg : "#f0fff4"},
+    { icon: <FaChartLine />, label: 'Taux de remplissage', value: '85%', color: "#ff9800" , bg : "#fff8f0"}
   ];
 
   const formatDate = (dateStr) => {
@@ -74,7 +74,7 @@ const OrganizerDashboard = () => {
       {/* Stats Grid */}
       <div className="stats-grid">
         {stats.map((stat, i) => (
-          <div key={i} className="stat-card" style={{ backgroundColor: "#f0f7ff"}}>
+          <div key={i} className="stat-card" style={{ borderTop: `4px solid ${stat.color}`, backgroundColor: stat.bg }}>
             <div className="stat-icon" style={{ color: stat.color }}>
               {stat.icon}
             </div>

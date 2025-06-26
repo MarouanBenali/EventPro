@@ -124,34 +124,30 @@ const SubscriberDashboard = () => {
 
       {/* Statistiques rapides */}
       <div className="stats-grid">
-        <div className="stat-card" style={{ backgroundColor: "#f0f7ff"}}>
+        <div className="stat-card" style={{ backgroundColor: "#f0f7ff", borderTop: "4px solid #9c27b0" }}>
           <div className="stat-icon">
             <FaCalendarAlt style={{ color: "#3f51b5" }} />
           </div>
-          <div className="stat-value">{registeredEvents.length}</div>
           <div className="stat-label">Événements enregistrés</div>
+          <div className="stat-value">{registeredEvents.length}</div>
         </div>
 
-        <div className="stat-card" style={{ backgroundColor: "#f0fff4" }}>
+        <div className="stat-card" style={{ backgroundColor: "#f0fff4", borderTop: "4px solid #3f51b5" }}>
           <div className="stat-icon">
             <FaUsers style={{ color: "#4caf50" }} />
           </div>
+          <div className="stat-label">Événements à venir</div>
           <div className="stat-value">
             {registeredEvents.filter((e) => e.status === "upcoming").length}
           </div>
-          <div className="stat-label">Événements à venir</div>
         </div>
 
-        <div className="stat-card" style={{ backgroundColor: "#fff8f0" }}>
+        <div className="stat-card" style={{ backgroundColor: "#fff8f0", borderTop: "4px solid #ff9800" }}>
           <div className="stat-icon">
             <FaStar style={{ color: "#ff9800" }} />
           </div>
-          <div className="stat-value">
-            {registeredEvents.length > 0
-              ? registeredEvents[0].category
-              : "Indisponible"}
-          </div>
           <div className="stat-label">Catégorie préférée</div>
+          <div className="stat-value"> {registeredEvents.length > 0 ? registeredEvents[0].category : "Indisponible"} </div>
         </div>
       </div>
 
@@ -162,10 +158,7 @@ const SubscriberDashboard = () => {
         {registeredEvents.length === 0 ? (
           <div className="empty-message">
             <p>Vous n'êtes inscrit à aucun événement pour le moment.</p>
-            <button
-              className="subscriber-primary-button"
-              onClick={() => navigate("/events")}
-            >
+            <button className="subscriber-primary-button" onClick={() => navigate("/events")} >
               <FaPlus /> Explorer les événements
             </button>
           </div>

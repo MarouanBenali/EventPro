@@ -1,0 +1,14 @@
+.admin-container {
+  margin: 20px auto;
+  padding: 0 20px;
+  font-family: Arial, sans-serif;
+}
+
+.admin-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.admin-text {
+  font-size: 1rem;
+}

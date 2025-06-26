@@ -82,12 +82,9 @@ const AdminDashboard = () => {
   }, []);
 
   const stats = [
-    { icon: <FaUsers />, label: "Total Users", value: data.users.length, color: "#3f51b5" },
-    { icon: <FaCalendarAlt />, label: "Total Events", value: data.events.length, color: "#9c27b0" },
-    { icon: <FaUserShield />, label: "Pending Requests", 
-      value: data.requests.filter(r => r.statut === "pending").length, 
-      color: "#ff9800" 
-    }
+    { icon: <FaUsers />, label: "Total Users", value: data.users.length, color: "#3f51b5", bg : "#f0f7ff" },
+    { icon: <FaCalendarAlt />, label: "Total Events", value: data.events.length, color: "#9c27b0", bg : "#f0fff4"},
+    { icon: <FaUserShield />, label: "Pending Requests", value: data.requests.filter(r => r.statut === "pending").length, color: "#ff9800", bg : "#fff8f0" }
   ];
 
   const filteredData = {
@@ -142,7 +139,7 @@ const AdminDashboard = () => {
       
       <div className="stats-grid">
         {stats.map((stat, index) => (
-          <div key={index} className="stat-card" style={{ backgroundColor: "#f0f7ff"}}>
+          <div key={index} className="stat-card" style={{ borderTop: `4px solid ${stat.color}`, backgroundColor: stat.bg }}>
             <div className="stat-icon" style={{ color: stat.color }}>
               {stat.icon}
             </div>
@@ -311,7 +308,7 @@ const AdminDashboard = () => {
           {/* Requests Panel */}
           {tabValue === 2 && (
             <div className="tab-panel">
-              <h3>Pending Organizer Requests</h3>
+              <h4>Pending Organizer Requests</h4>
               
               {loading.requests ? (
                 <div className="loading">Loading requests...</div>

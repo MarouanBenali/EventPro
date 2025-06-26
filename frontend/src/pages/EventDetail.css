@@ -1,0 +1,475 @@
+/* Variables CSS communes */
+:root {
+  /* Couleurs */
+  --primary-color: #1976d2;
+  --primary-light: #e3f2fd;
+  --secondary-color: #9c27b0;
+  --secondary-light: #f3e5f5;
+  --success-color: #2e7d32;
+  --warning-color: #ed6c02;
+  --info-color: #0288d1;
+  --error-color: #d32f2f;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --divider-color: #e0e0e0;
+  
+  /* Dimensions */
+  --border-radius: 8px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.377);
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+/* Styles de base */
+body {
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* Styles communs aux icônes */
+.icon {
+  margin-right: var(--spacing-xs);
+  font-size: 1.1em;
+  vertical-align: middle;
+}
+
+/* ==================== */
+/* Styles pour EventDetail */
+/* ==================== */
+
+/* Conteneur principal */
+.event-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+/* Navigation */
+.event-detail-page .breadcrumbs {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  font-size: 14px;
+}
+
+.event-detail-page .breadcrumbs a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.event-detail-page .breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.event-detail-page .breadcrumb-divider {
+  margin: 0 var(--spacing-sm);
+  color: var(--text-secondary);
+}
+
+.event-detail-page .current-page {
+  color: var(--text-secondary);
+}
+
+/* Boutons */
+.event-detail-page .back-button {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  background: none;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.event-detail-page .back-button:hover {
+  background-color: var(--primary-light);
+}
+
+/* Contenu principal */
+.event-detail-page .event-content-container {
+  display: flex;
+  gap: var(--spacing-xl);
+}
+
+.event-detail-page .event-main-content {
+  flex: 2;
+}
+
+.event-detail-page .event-sidebar {
+  flex: 1;
+  position: sticky;
+  top: var(--spacing-lg);
+  height: fit-content;
+}
+
+/* Image */
+.event-detail-page .event-image-container {
+  margin-bottom: var(--spacing-lg);
+}
+
+.event-detail-page .event-image {
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+/* En-tête */
+.event-detail-page .event-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.event-detail-page .event-tags {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.event-detail-page .event-category,
+.event-detail-page .event-status,
+.event-detail-page .event-price-tag {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.event-detail-page .event-category {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.event-detail-page .event-status {
+  background-color: #e0e0e0;
+  color: var(--text-primary);
+}
+
+.event-detail-page .event-status.upcoming {
+  background-color: #e8f5e9;
+  color: var(--success-color);
+}
+
+.event-detail-page .event-price-tag {
+  background-color: var(--secondary-light);
+  color: var(--secondary-color);
+}
+
+.event-detail-page .event-title {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.event-detail-page .event-description {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Détails */
+.event-detail-page .event-details-section,
+.event-detail-page .event-tags-section {
+  background: white;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.event-detail-page .section-title {
+  display: flex;
+  align-items: center;
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.event-detail-page .details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.event-detail-page .detail-card {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.196);
+}
+
+.event-detail-page .detail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 30px;
+  margin-right: var(--spacing-md);
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.event-detail-page .detail-icon.location-icon {
+  background-color: var(--secondary-light);
+  color: var(--secondary-color);
+}
+
+.event-detail-page .detail-icon.participants-icon {
+  background-color: #e1f5fe;
+  color: var(--info-color);
+}
+
+.event-detail-page .detail-icon.price-icon {
+  background-color: #fff3e0;
+  color: var(--warning-color);
+}
+
+.event-detail-page .detail-content h3 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.event-detail-page .detail-content p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Barre de progression */
+.event-detail-page .progress-bar {
+  width: 100%;
+  height: 4px;
+  margin-top: var(--spacing-sm);
+  background-color: var(--divider-color);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.event-detail-page .progress-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+/* Tags */
+.event-detail-page .tg-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.event-detail-page .tg {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+  font-size: 14px;
+}
+
+/* Carte d'inscription */
+.event-detail-page .registration-card {
+  background: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: var(--spacing-lg);
+}
+
+.event-detail-page .event-price {
+  margin: var(--spacing-md) 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.event-detail-page .free-event {
+  color: var(--success-color);
+}
+
+.event-detail-page .paid-event {
+  color: var(--primary-color);
+}
+
+/* Alertes */
+.event-detail-page .alert {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  border-radius: var(--border-radius);
+  font-size: 14px;
+}
+
+.event-detail-page .alert-icon {
+  margin-right: var(--spacing-sm);
+}
+
+.event-detail-page .success-alert {
+  background-color: #e8f5e9;
+  color: var(--success-color);
+}
+
+.event-detail-page .info-alert {
+  background-color: #e1f5fe;
+  color: var(--info-color);
+}
+
+.event-detail-page .warning-alert {
+  background-color: #fff3e0;
+  color: var(--warning-color);
+}
+
+/* Bouton d'inscription */
+.event-detail-page .register-button {
+  width: 100%;
+  padding: var(--spacing-md);
+  margin: var(--spacing-md) 0;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.event-detail-page .register-button:hover {
+  background-color: #1565c0;
+}
+
+.event-detail-page .register-button.disabled {
+  background-color: #e0e0e0;
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* Partage social */
+.event-detail-page .social-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-md);
+}
+
+.event-detail-page .share-button,
+.event-detail-page .save-button {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.event-detail-page .share-button:hover {
+  color: var(--primary-color);
+}
+
+.event-detail-page .save-button:hover {
+  color: var(--secondary-color);
+}
+
+/* Organisateur */
+.event-detail-page .organizer-card {
+  background: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+.event-detail-page .organizer-info {
+  display: flex;
+  align-items: center;
+  margin-top: var(--spacing-md);
+}
+
+.event-detail-page .organizer-avatar {
+  width: 56px;
+  height: 56px;
+  margin-right: var(--spacing-md);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.event-detail-page .organizer-details h4 {
+  margin: 0 0 var(--spacing-xs) 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.event-detail-page .organizer-details p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Dialog */
+.event-detail-page .dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.event-detail-page .dialog-container {
+  background: white;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 500px;
+}
+
+.event-detail-page .dialog-title {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.event-detail-page .dialog-content {
+  margin-bottom: var(--spacing-lg);
+}
+
+.event-detail-page .dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.event-detail-page .cancel-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: 1px solid var(--text-secondary);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.event-detail-page .confirm-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.event-detail-page .confirm-button:hover {
+  background-color: #1565c0;
+}

@@ -11,7 +11,7 @@
   color: #3f51b5;
   margin-bottom: 20px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #f0f0f0;  
   font-size: 1.5rem;
 }
 
@@ -31,6 +31,7 @@
 .subscriber-data-table th {
   background: #f5f7fa;
   color: #444;
+  text-align: left;
   font-weight: 600;
   padding: 15px;
 }
@@ -86,18 +87,19 @@
 
 .event-card-header {
   padding: 20px;
-  background: linear-gradient(135deg, #3f51b5 0%, #2196f3 100%);
   color: white;
+  border-bottom: 2px dashed #2e08da;
 }
 
 .event-card-header h3 {
   margin: 0 0 5px 0;
-  font-size: 1.2rem;
+  color: black;
+  font-size: 26px !important;
 }
 
 .event-category {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 3px 8px;
+  background: rgba(91, 110, 186, 0.475);
+  font-weight: bold;
   border-radius: 4px;
   font-size: 0.8rem;
 }

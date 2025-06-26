@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import './Navigation.css';
+import ChatbotWidget from "./ChatbotWidget";
 
 // استيراد الأيقونات من react-icons
 import { FaHome, FaCalendarAlt, FaChartBar, FaUser, FaPlus, FaSignOutAlt, FaSignInAlt, FaBars } from 'react-icons/fa';
@@ -154,6 +155,7 @@ const Navigation = () => {
         <div className="drawer-backdrop" onClick={handleDrawerToggle}></div>
         {drawer}
       </div>
+       <ChatbotWidget />
     </>
   );
 };

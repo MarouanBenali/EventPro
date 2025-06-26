@@ -4,26 +4,15 @@ import SubscriberDashboard from '../components/dashboard/SubscriberDashboard';
 import OrganizerDashboard from '../components/dashboard/OrganizerDashboard';
 import AdminDashboard from '../components/dashboard/AdminDashboard';
 import { 
-  Box,
-  Typography, 
-  Alert,
-  Paper,
-  Avatar,
-  Button,
-  Divider,
-  useTheme,
-  Container 
-} from '@mui/material';
-import {
   Lock,
   Warning,
   AdminPanelSettings,
   Event,
   Person
 } from '@mui/icons-material';
-import { styled } from '@mui/material/styles';
+import './Dashboard.css';
 
-// Error Boundary Component
+// Composant pour gérer les erreurs inattendues (Error Boundary)
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -31,127 +20,61 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
+    // Met à jour l'état pour afficher le fallback UI
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
+    // On peut logger l'erreur ici
     console.error("Error caught by ErrorBoundary:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
+      // UI d'erreur simple
       return (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            p: 2,
-            background: `linear-gradient(45deg, #ffebee 0%, #ffcdd2 100%)`,
-          }}
-        >
-          <StyledPaper>
-            <RoleIcon>
+        <div className="error-boundary-box">
+          <div className="styled-paper">
+            <div className="role-icon unknown">
               <Warning fontSize="large" />
-            </RoleIcon>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-              Something Went Wrong
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              We're sorry, but an unexpected error occurred. Please try refreshing the page.
-            </Typography>
-            <Divider sx={{ my: 3 }} />
-            <Button 
-              variant="contained" 
-              size="large" 
-              onClick={() => window.location.reload()}
-              sx={{
-                px: 4,
-                py: 1.5,
-                borderRadius: 3,
-                fontWeight: 'bold',
-                fontSize: '1rem',
-              }}
-            >
+            </div>
+            <h4>Something Went Wrong</h4>
+            <p>We're sorry, but an unexpected error occurred. Please try refreshing the page.</p>
+            <div className="divider"></div>
+            <button className="button contained" onClick={() => window.location.reload()}>
               Refresh Page
-            </Button>
-          </StyledPaper>
-        </Box>
+            </button>
+          </div>
+        </div>
       );
     }
-
     return this.props.children;
   }
 }
 
-// Styled components
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  borderRadius: theme.shape.borderRadius * 3,
-  boxShadow: theme.shadows[10],
-  maxWidth: 800,
-  width: '100%',
-  textAlign: 'center',
-  background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[100]} 100%)`,
-}));
-
-const RoleIcon = styled(Avatar)(({ theme, role }) => ({
-  width: 80,
-  height: 80,
-  margin: '0 auto 16px',
-  backgroundColor: 
-    role === 'admin' ? theme.palette.error.main :
-    role === 'organizer' ? theme.palette.warning.main :
-    theme.palette.success.main,
-}));
-
 const Dashboard = () => {
   const { user } = useAuth();
-  const theme = useTheme();
 
+  // Affichage quand l'utilisateur n'est pas connecté
   if (!user) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          minHeight: '100vh',
-          p: 2,
-          background: `linear-gradient(45deg, ${theme.palette.primary.light} 0%, ${theme.palette.secondary.light} 100%)`,
-        }}
-      >
-        <StyledPaper>
-          <RoleIcon>
+      <div className="restricted-access-box">
+        <div className="styled-paper">
+          <div className="role-icon subscriber">
             <Lock fontSize="large" />
-          </RoleIcon>
-          <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-            Access Restricted
-          </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-            You must be logged in to access the dashboard.
-          </Typography>
-          <Divider sx={{ my: 3 }} />
-          <Button 
-            variant="contained" 
-            size="large" 
-            href="/login"
-            sx={{
-              px: 4,
-              py: 1.5,
-              borderRadius: 3,
-              fontWeight: 'bold',
-              fontSize: '1rem',
-            }}
-          >
-            Go to Login
-          </Button>
-        </StyledPaper>
-      </Box>
+          </div>
+          <h4>Access Restricted</h4>
+          <p>You must be logged in to access the dashboard.</p>
+          <div className="divider"></div>
+          <a href="/login">
+            <button className="button contained">Go to Login</button>
+          </a>
+        </div>
+      </div>
     );
   }
 
+  // Fonction pour afficher le tableau de bord selon le rôle
   const renderDashboard = () => {
     try {
       switch (user.role) {
@@ -163,120 +86,65 @@ const Dashboard = () => {
           return <SubscriberDashboard />;
         default:
           return (
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-                p: 2,
-              }}
-            >
-              <StyledPaper>
-                <RoleIcon role="unknown">
+            <div className="unknown-role-box">
+              <div className="styled-paper">
+                <div className="role-icon unknown">
                   <Warning fontSize="large" />
-                </RoleIcon>
-                <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-                  Unknown Role
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                  Your user role is not recognized. Please contact support for assistance.
-                </Typography>
-                <Divider sx={{ my: 3 }} />
-                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                  <Button 
-                    variant="outlined" 
-                    size="large" 
-                    href="/"
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Go Home
-                  </Button>
-                  <Button 
-                    variant="contained" 
-                    size="large" 
-                    href="/contact"
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      borderRadius: 3,
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Contact Support
-                  </Button>
-                </Box>
-              </StyledPaper>
-            </Box>
+                </div>
+                <h4>Unknown Role</h4>
+                <p>Your user role is not recognized. Please contact support for assistance.</p>
+                <div className="divider"></div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 16 }}>
+                  <a href="/">
+                    <button className="button outlined">Go Home</button>
+                  </a>
+                  <a href="/contact">
+                    <button className="button contained">Contact Support</button>
+                  </a>
+                </div>
+              </div>
+            </div>
           );
       }
     } catch (error) {
       console.error("Error rendering dashboard:", error);
       return (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '100vh',
-            p: 2,
-          }}
-        >
-          <StyledPaper>
-            <RoleIcon>
+        <div className="render-error-box">
+          <div className="styled-paper">
+            <div className="role-icon unknown">
               <Warning fontSize="large" />
-            </RoleIcon>
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', mb: 2 }}>
-              Rendering Error
-            </Typography>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-              Failed to load dashboard content. Please try again later.
-            </Typography>
-          </StyledPaper>
-        </Box>
+            </div>
+            <h4>Rendering Error</h4>
+            <p>Failed to load dashboard content. Please try again later.</p>
+          </div>
+        </div>
       );
     }
   };
 
-  // Welcome header for all dashboards
+  // Header de bienvenue, selon rôle utilisateur
   const WelcomeHeader = () => (
-    <Box sx={{ textAlign: 'center', mb: 4 }}>
-      <RoleIcon role={user?.role}>
-        {user?.role === 'admin' ? <AdminPanelSettings fontSize="large" /> :
-         user?.role === 'organizer' ? <Event fontSize="large" /> :
-         <Person fontSize="large" />}
-      </RoleIcon>
-      <Typography variant="h3" sx={{ fontWeight: 'bold', mb: 1 }}>
-        Welcome, {user?.name || 'User'}!
-      </Typography>
-      <Typography variant="subtitle1" color="text.secondary">
-        {user?.role === 'admin' ? 'Administrator Dashboard' :
-         user?.role === 'organizer' ? 'Event Organizer Dashboard' :
-         'Subscriber Dashboard'}
-      </Typography>
-    </Box>
+    <div className="welcome-header">
+      <div className={`role-icon ${user.role}`}>
+        {user.role === 'admin' && <AdminPanelSettings fontSize="large" />}
+        {user.role === 'organizer' && <Event fontSize="large" />}
+        {user.role === 'subscriber' && <Person fontSize="large" />}
+      </div>
+      <h3>Welcome, {user.name || 'User'}!</h3>
+      <p>
+        {user.role === 'admin' && 'Administrator Dashboard'}
+        {user.role === 'organizer' && 'Event Organizer Dashboard'}
+        {user.role === 'subscriber' && 'Subscriber Dashboard'}
+      </p>
+    </div>
   );
 
   return (
     <ErrorBoundary>
-      <Box sx={{ 
-        minHeight: '100vh',
-        py: 6,
-        px: 2,
-        background: theme.palette.mode === 'light' 
-          ? 'linear-gradient(45deg, #f5f7fa 0%, #e4e8f0 100%)' 
-          : 'linear-gradient(45deg, #121212 0%, #1e1e1e 100%)'
-      }}>
-        <Container maxWidth="xl">
-          <WelcomeHeader />
-          {renderDashboard()}
-        </Container>
-      </Box>
+      <div className="dashboard-container">
+        <WelcomeHeader />
+        {renderDashboard()}
+      </div>
     </ErrorBoundary>
   );
 };

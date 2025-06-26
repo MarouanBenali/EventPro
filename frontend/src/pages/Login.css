@@ -1,0 +1,105 @@
+/* Login.css */
+.login-main {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.login-section {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.login-section h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-error {
+  background-color: #f8d7da;
+  color: #842029;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.lg-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1976d2;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.lg-button:hover {
+  background-color: #285e93;
+}
+
+
+.lg-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.demo-container {
+  margin-bottom: 20px;
+}
+
+.demo-title {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.demo-button {
+  flex: 1 1 auto;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #1976d2;
+  background: transparent;
+  cursor: pointer;
+  color: #1976d2;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.demo-button:hover {
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
+.signup-text {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.signup-text a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.signup-text a:hover {
+  text-decoration: underline;
+}

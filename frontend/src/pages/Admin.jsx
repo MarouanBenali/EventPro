@@ -1,18 +1,13 @@
-import React from 'react';
-import { Container, Typography } from '@mui/material';
+import React from "react";
+import "./Admin.css";
 
 const Admin = () => {
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
-        Admin Panel
-      </Typography>
-      <Typography variant="body1">
-        Admin management interface will be here...
-      </Typography>
-    </Container>
+    <div className="admin-container">
+      <h1 className="admin-title">Admin Panel</h1>
+      <p className="admin-text">Admin management interface will be here...</p>
+    </div>
   );
 };
 
 export default Admin;
-

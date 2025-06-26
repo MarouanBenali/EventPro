@@ -1,20 +1,8 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Typography,
-  Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
-  Chip,
-  Paper,
-  CircularProgress,
-} from "@mui/material";
-import { Search, FilterList } from "@mui/icons-material";
+import { FaSearch, FaFilter } from "react-icons/fa";
 import EventCard from "../components/events/EventCard";
 import apiService from "../utils/apiService";
+import "./Events.css"; // ملف CSS خارجي
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -24,10 +12,10 @@ const Events = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Charger les événements au démarrage
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        setLoading(true);
         const response = await apiService.getEvents();
         setEvents(response);
         setFilteredEvents(response);
@@ -41,22 +29,25 @@ const Events = () => {
     fetchEvents();
   }, []);
 
+  // Filtrage des événements à chaque changement
   useEffect(() => {
-    const lowerSearch = searchTerm.toLowerCase();
-    const filtered = events.filter((event) => {
+    const search = searchTerm.toLowerCase();
+    const result = events.filter((event) => {
       const matchesSearch =
-        event.title.toLowerCase().includes(lowerSearch) ||
-        event.description.toLowerCase().includes(lowerSearch) ||
-        event.location.toLowerCase().includes(lowerSearch);
+        event.title.toLowerCase().includes(search) ||
+        event.description.toLowerCase().includes(search) ||
+        event.location.toLowerCase().includes(search);
 
       const matchesCategory =
         !categoryFilter || event.category === categoryFilter;
-      const matchesStatus = !statusFilter || event.status === statusFilter;
+
+      const matchesStatus =
+        !statusFilter || event.status === statusFilter;
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
 
-    setFilteredEvents(filtered);
+    setFilteredEvents(result);
   }, [searchTerm, categoryFilter, statusFilter, events]);
 
   const handleClearFilters = () => {
@@ -65,142 +56,93 @@ const Events = () => {
     setStatusFilter("");
   };
 
-  const categories = [...new Set(events.map((event) => event.category))];
+  const categories = [...new Set(events.map((e) => e.category))];
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4, textAlign: "center" }}>
-        <CircularProgress />
-        <Typography variant="h6" mt={2}>
-          Loading events...
-        </Typography>
-      </Container>
+      <div className="container center">
+        <div className="spinner"></div>
+        <h2>Loading events...</h2>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          All Events
-        </Typography>
-        <Typography variant="h6" color="text.secondary" paragraph>
-          Discover amazing events happening around you
-        </Typography>
-      </Box>
+    <div className="container">
+      <div className="header">
+        <h1>All Events</h1>
+        <p>Discover amazing events happening around you</p>
+      </div>
 
-      {/* Search and Filters */}
-      <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-          <FilterList sx={{ mr: 1 }} />
-          <Typography variant="h6">Search & Filter Events</Typography>
-        </Box>
+      {/* Filtres de recherche */}
+      <div className="filters">
+        <div className="filter-header">
+          <FaFilter />
+          <span>Search & Filter Events</span>
+        </div>
 
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-            flexWrap: "wrap",
-          }}
-        >
-          <TextField
-            fullWidth
-            label="Search events"
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <Search sx={{ mr: 1, color: "text.secondary" }} />
-              ),
-            }}
-          />
+        <div className="filter-inputs">
+          <div className="input-group">
+            <FaSearch className="icon" />
+            <input
+              type="text"
+              placeholder="Search events"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-          <FormControl fullWidth>
-            <InputLabel>Category</InputLabel>
-            <Select
-              value={categoryFilter}
-              label="Category"
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <MenuItem value="">All Categories</MenuItem>
-              {categories.map((category) => (
-                <MenuItem key={category} value={category}>
-                  {category}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
 
-          <FormControl fullWidth>
-            <InputLabel>Status</InputLabel>
-            <Select
-              value={statusFilter}
-              label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <MenuItem value="">All Events</MenuItem>
-              <MenuItem value="upcoming">Upcoming</MenuItem>
-              <MenuItem value="past">Past</MenuItem>
-            </Select>
-          </FormControl>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Events</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
+          </select>
 
           {(searchTerm || categoryFilter || statusFilter) && (
-            <Box>
-              <Chip
-                label="Clear Filters"
-                onClick={handleClearFilters}
-                onDelete={handleClearFilters}
-                color="primary"
-                variant="outlined"
-              />
-            </Box>
+            <button className="clear-btn" onClick={handleClearFilters}>
+              Clear Filters
+            </button>
           )}
-        </Box>
-      </Paper>
+        </div>
+      </div>
 
-      {/* Results Summary */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="body1" color="text.secondary">
-          Showing {filteredEvents.length} of {events.length} events
-        </Typography>
-      </Box>
+      {/* Résumé */}
+      <p className="result-count">
+        Showing {filteredEvents.length} of {events.length} events
+      </p>
 
-      {/* Events Grid */}
+      {/* Grille des événements */}
       {filteredEvents.length > 0 ? (
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              lg: "repeat(3, 1fr)",
-            },
-            gap: 3,
-          }}
-        >
+        <div className="grid">
           {filteredEvents.map((event) => (
             <EventCard event={event} key={event.id} />
           ))}
-        </Box>
+        </div>
       ) : (
-        <Paper sx={{ p: 6, textAlign: "center" }}>
-          <Typography variant="h5" gutterBottom>
-            No events found
-          </Typography>
-          <Typography variant="body1" color="text.secondary" paragraph>
-            Try adjusting your search criteria or filters
-          </Typography>
-          <Chip
-            label="Clear All Filters"
-            onClick={handleClearFilters}
-            color="primary"
-            variant="contained"
-          />
-        </Paper>
+        <div className="no-events">
+          <h3>No events found</h3>
+          <p>Try adjusting your search criteria or filters</p>
+          <button className="clear-btn" onClick={handleClearFilters}>
+            Clear All Filters
+          </button>
+        </div>
       )}
-    </Container>
+    </div>
   );
 };
 
