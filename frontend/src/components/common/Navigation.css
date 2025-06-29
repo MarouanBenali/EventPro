@@ -12,7 +12,7 @@
 }
 
 .app-bar {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
@@ -43,12 +43,10 @@
 }
 
 .app-title a {
-  color: white;
+  color: white ;
   font-size: 1.5rem;
   font-weight: 700;
   text-decoration: none;
-  background: linear-gradient(to right, white, #f8f9fa);
-  -webkit-text-fill-color: transparent;
   letter-spacing: 1px;
 }
 
