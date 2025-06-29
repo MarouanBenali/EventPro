@@ -1,33 +1,30 @@
-// API configuration and service functions
+// Configuration de l'API et fonctions de service
 const API_BASE_URL = "http://localhost:8000/api";
 
 class ApiService {
   constructor() {
+    // Récupérer le token JWT stocké dans le localStorage
     this.token = localStorage.getItem("eventpro_token");
   }
 
+  // Mettre à jour le token et le stocker ou le supprimer selon le cas
   setToken(token) {
     this.token = token;
-    if (token) {
-      localStorage.setItem("eventpro_token", token);
-    } else {
-      localStorage.removeItem("eventpro_token");
-    }
+    if (token) localStorage.setItem("eventpro_token", token);
+    else localStorage.removeItem("eventpro_token");
   }
 
+  // Construire les headers HTTP avec authentification si token disponible
   getHeaders() {
     const headers = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };
-
-    if (this.token) {
-      headers["Authorization"] = `Bearer ${this.token}`;
-    }
-
+    if (this.token) headers["Authorization"] = `Bearer ${this.token}`;
     return headers;
   }
 
+  // Méthode générique pour faire une requête API
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
     const config = {
@@ -38,31 +35,30 @@ class ApiService {
     try {
       const response = await fetch(url, config);
 
+      // Gestion des erreurs HTTP
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`
+          errorData.message || `Erreur HTTP ! status: ${response.status}`
         );
       }
 
+      // Retourner la réponse JSON
       return await response.json();
     } catch (error) {
-      console.error("API request failed:", error);
+      console.error("Échec de la requête API :", error);
       throw error;
     }
   }
 
-  // Authentication
+  //******************** AUTHENTIFICATION******************** 
   async login(email, password) {
     const response = await this.request("/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
 
-    if (response.token) {
-      this.setToken(response.token);
-    }
-
+    if (response.token) this.setToken(response.token);
     return response;
   }
 
@@ -72,10 +68,7 @@ class ApiService {
       body: JSON.stringify({ name, email, password, role }),
     });
 
-    if (response.token) {
-      this.setToken(response.token);
-    }
-
+    if (response.token) this.setToken(response.token);
     return response;
   }
 
@@ -87,14 +80,10 @@ class ApiService {
     }
   }
 
-  // Events
-  async getEvents() {
-    return await this.request("/events");
-  }
+  //******************** ÉVÉNEMENTS********************
+  async getEvents() { return await this.request("/events");}
 
-  async getEvent(id) {
-    return await this.request(`/events/${id}`);
-  }
+  async getEvent(id) { return await this.request(`/events/${id}`);}
 
   async createEvent(eventData) {
     return await this.request("/events", {
@@ -116,13 +105,14 @@ class ApiService {
     });
   }
 
+  // ********************GESTION DES UTILISATEURS (ADMIN)******************** 
   async getAllUsers() {
-    return await this.request("/admin/users"); // Or your actual admin endpoint for users
+    return await this.request("/admin/users"); // Endpoint admin utilisateurs
   }
 
   async updateUserRole(userId, role) {
     return await this.request(`/admin/users/${userId}/role`, {
-      method: "PATCH", // Or PUT, depending on your API
+      method: "PATCH", // Ou PUT selon l'API
       body: JSON.stringify({ role }),
     });
   }
@@ -133,7 +123,7 @@ class ApiService {
     });
   }
 
-  // Event subscriptions
+  //******************** INSCRIPTIONS AUX ÉVÉNEMENTS ********************
   async subscribeToEvent(eventId) {
     return await this.request(`/events/${eventId}/subscribe`, {
       method: "POST",
@@ -150,14 +140,10 @@ class ApiService {
     return await this.request(`/events/${eventId}/participants`);
   }
 
-  // User management
-  async getUserEvents(userId) {
-    return await this.request(`/users/${userId}/events`);
-  }
+  //******************** GESTION DES ÉVÉNEMENTS D'UN UTILISATEUR*******************
+  async getUserEvents(userId) {  return await this.request(`/users/${userId}/events`);}
 
-  async getUserRegistrations(userId) {
-    return await this.request(`/users/${userId}/registrations`);
-  }
+  async getUserRegistrations(userId) { return await this.request(`/users/${userId}/registrations`);}
 
   async updateUser(userId, userData) {
     return await this.request(`/users/${userId}`, {
@@ -166,12 +152,9 @@ class ApiService {
     });
   }
 
-  async getCurrentUser() {
-    return await this.request("/user");
-  }
+  async getCurrentUser() { return await this.request("/user");}
 
-  // Organizer requests
-
+  //******************** DEMANDES D'ORGANISATEUR********************
   async getOrganizerRequests() {
     return await this.request("/organizer-requests");
   }
@@ -188,10 +171,8 @@ class ApiService {
     });
   }
 
-  // Notifications
-  async getNotifications(userId) {
-    return await this.request(`/notifications/${userId}`);
-  }
+  //******************** NOTIFICATIONS********************
+  async getNotifications(userId) { return await this.request(`/notifications/${userId}`);}
 
   async addNotification(notificationData) {
     return await this.request(`/notifications`, {
@@ -207,8 +188,10 @@ class ApiService {
   }
 }
 
-// Helper functions for backward compatibility
+// Création d'une instance unique pour utilisation dans tout le projet
 const apiService = new ApiService();
+
+// Fonctions utilitaires pour compatibilité et facilité d'usage
 
 export const getUpcomingEvents = async () => {
   const events = await apiService.getEvents();
@@ -233,7 +216,7 @@ export const isUserRegistered = async (userId, eventId) => {
     const registrations = await apiService.getUserRegistrations(userId);
     return registrations.some((reg) => reg.id === parseInt(eventId));
   } catch (error) {
-    console.error("Error checking user registration:", error);
+    console.error("Erreur lors de la vérification de l'inscription :", error);
     return false;
   }
 };
@@ -246,7 +229,7 @@ export const getEventParticipants = async (eventId) => {
   return await apiService.getEventParticipants(eventId);
 };
 
-// Notifications helpers
+// Helpers pour les notifications
 
 export const getUserNotifications = async (userId) => {
   return await apiService.getNotifications(userId);
@@ -260,5 +243,5 @@ export const markNotificationAsRead = async (notificationId) => {
   return await apiService.markNotificationAsRead(notificationId);
 };
 
-
+// Export par défaut de l'instance ApiService
 export default apiService;

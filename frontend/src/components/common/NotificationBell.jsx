@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaBell } from "react-icons/fa";
 import { getUserNotifications, markNotificationAsRead } from "../../utils/apiService";
-import "./NotificationBell.css";
 
 const NotificationBell = ({ user }) => {
   const [notifications, setNotifications] = useState([]);
@@ -45,21 +44,22 @@ const NotificationBell = ({ user }) => {
       </button>
 
       {open && (
-        <div className="notification-dropdown">
-          {notifications.length === 0 && (
-            <div className="notification-item">Aucune notification.</div>
-          )}
-          {notifications.map((notif) => (
-            <div
-              key={notif.id}
-              className={`notification-item ${notif.isVu ? "read" : "unread"}`}
-              onClick={() => handleMarkAsRead(notif.id)}
-            >
-              {notif.message}
-            </div>
-          ))}
-        </div>
-      )}
+  <div className="notification-dropdown">
+    {notifications.length === 0 && (
+      <div className="notification-item">Aucune notification.</div>
+    )}
+    {notifications.map((notif) => (
+      <div
+        key={notif.id}
+        className={`notification-item ${notif.isVu ? "read" : "unread"}`}
+        onClick={() => handleMarkAsRead(notif.id)}
+      >
+        {notif.message}
+      </div>
+    ))}
+  </div>
+)}
+
     </div>
   );
 };

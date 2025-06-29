@@ -10,7 +10,9 @@ class NotificationController extends Controller
     // Afficher les notifications d'un utilisateur spécifique
     public function index($userId)
     {
-        $notifications = Notification::where('user_id', $userId)->orderBy('date_creation', 'desc')->get();
+       $notifications = Notification::where('user_id', $userId)
+    ->orderBy('created_at', 'desc')
+    ->get();
         return response()->json($notifications);
     }
 
