@@ -16,7 +16,7 @@ const ChatbotWidget = () => {
 
     try {
       const response = await fetch(
-        "https://93c0-34-125-33-120.ngrok-free.app/ask",
+        "https://524d-34-142-196-180.ngrok-free.app/ask",
         {
           method: "POST",
           headers: {

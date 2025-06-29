@@ -9,8 +9,7 @@ use Carbon\Carbon;
 class OrganizerController extends Controller
 {
     // Affiche toutes les demandes d'organisateur avec les informations utilisateur
-    public function index()
-    {
+    public function index(){
         $requests = DemandeOrganisateur::with('user')->get();
         return response()->json($requests);
     }
