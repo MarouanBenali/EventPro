@@ -9,16 +9,14 @@ use Illuminate\Support\Facades\Hash;
 class UserSeeder extends Seeder
 {
     public function run(): void{
-        for ($i = 1; $i <= 10; $i++) {
             User::create([
-                'name' => "Admin $i",
-                'email' => "admin$i@eventpro.com",
+                'name' => "Admin",
+                'email' => "admin@eventpro.com",
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
             ]);
-        }
 
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             User::create([
                 'name' => "Organizer $i",
                 'email' => "organizer$i@eventpro.com",
@@ -27,7 +25,7 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             User::create([
                 'name' => "User $i",
                 'email' => "user$i@eventpro.com",

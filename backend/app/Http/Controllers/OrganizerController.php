@@ -81,3 +81,5 @@ class OrganizerController extends Controller
         return response()->json(['message' => 'Demande envoyée avec succès.']);
     }
 }
+
+

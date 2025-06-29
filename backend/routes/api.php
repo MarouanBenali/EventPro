@@ -1,53 +1,54 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EventController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\OrganizerController;
+use App\Http\Controllers\{ EventController, UserController, NotificationController, Auth\AuthController, SubscriptionController, OrganizerController};
 
-// Authentication routes
+//========================== Routes publiques ==========================
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/events', [EventController::class, 'index']); // Liste des événements
+Route::get('/events/{id}', [EventController::class, 'show']); // Détails d’un événement
 
-// Public routes
-Route::get('/events', [EventController::class, 'index']);
-Route::get('/events/{id}', [EventController::class, 'show']);
-
-// Protected routes
+//========================== Routes protégées (auth:sanctum)==========================
 Route::middleware('auth:sanctum')->group(function () {
+
+    // Profil utilisateur connecté
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
-    // Event management
-    Route::post('/events', [EventController::class, 'store']);
-    Route::put('/events/{id}', [EventController::class, 'update']);
-    Route::delete('/events/{id}', [EventController::class, 'destroy']);
+    Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Event subscriptions
-    Route::post('/events/{id}/subscribe', [SubscriptionController::class, 'subscribe']);
-    Route::delete('/events/{id}/unsubscribe', [SubscriptionController::class, 'unsubscribe']);
-    Route::get('/events/{id}/participants', [SubscriptionController::class, 'getParticipants']);
+    // Gestion des événements
+    Route::post('/events', [EventController::class, 'store']); // Créer un événement
+    Route::put('/events/{id}', [EventController::class, 'update']); // Modifier un événement
+    Route::delete('/events/{id}', [EventController::class, 'destroy']); // Supprimer un événement
 
-    // User management
-    Route::get('/users/{id}/events', [UserController::class, 'getUserEvents']);
-    Route::get('/users/{id}/registrations', [UserController::class, 'getUserRegistrations']);
-    Route::put('/users/{id}', [UserController::class, 'update']);
+    // Inscriptions aux événements
+    Route::post('/events/{id}/subscribe', [SubscriptionController::class, 'subscribe']); // S’inscrire
+    Route::delete('/events/{id}/unsubscribe', [SubscriptionController::class, 'unsubscribe']); // Se désinscrire
+    Route::get('/events/{id}/participants', [SubscriptionController::class, 'getParticipants']); // Lister les participants
 
-    // Admin User Management routes
-    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
-        Route::get('/users', [UserController::class, 'getAllUsers']);
-        Route::delete('/users/{id}', [UserController::class, 'deleteUserByAdmin']);
+    // Gestion de l'utilisateur
+    Route::get('/users/{id}/events', [UserController::class, 'getUserEvents']); // Événements créés par l’utilisateur
+    Route::get('/users/{id}/registrations', [UserController::class, 'getUserRegistrations']); // Inscriptions de l’utilisateur
+    Route::put('/users/{id}', [UserController::class, 'update']); // Modifier le profil utilisateur
+
+    // Gestion des utilisateurs côté admin
+    Route::prefix('admin')->group(function () {
+        Route::get('/users', [UserController::class, 'getAllUsers']); // Lister tous les utilisateurs
+        Route::delete('/users/{id}', [UserController::class, 'deleteUserByAdmin']); // Supprimer un utilisateur
     });
 
-    // Organizer Requests
-    Route::get('/organizer-requests', [OrganizerController::class, 'index']);
-    Route::post('/organizer-requests/{id}/approve', [OrganizerController::class, 'approve']);
-    Route::post('/organizer-requests/{id}/reject', [OrganizerController::class, 'reject']);
+    // Gestion des demandes d’organisateur
+    Route::get('/organizer-requests', [OrganizerController::class, 'index']); // Lister les demandes
+    Route::post('/organizer-requests/{id}/approve', [OrganizerController::class, 'approve']); // Approuver
+    Route::post('/organizer-requests/{id}/reject', [OrganizerController::class, 'reject']); // Rejeter
+    Route::post('/request-organizer', [OrganizerController::class, 'request']); // Demande pour devenir organisateur
 
-    Route::post('/request-organizer', [OrganizerController::class, 'request']);
+    // Notifications
+    Route::get('/notifications/{userId}', [NotificationController::class, 'index']); // Lister les notifications d’un utilisateur
+    Route::post('/notifications', [NotificationController::class, 'store']); // Ajouter une notification
+    Route::put('/notifications/{notificationId}/read', [NotificationController::class, 'markAsRead']); // Marquer comme lue
+
 });
