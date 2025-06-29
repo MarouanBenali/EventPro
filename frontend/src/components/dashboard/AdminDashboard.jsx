@@ -128,7 +128,6 @@ const AdminDashboard = () => {
     <div className="admin-container">
       {/* Header */}
       <header className="admin-header">
-        <h1>Admin Dashboard</h1>
         <p>Manage users, events, and monitor platform activity</p>
       </header>
 

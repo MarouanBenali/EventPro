@@ -176,7 +176,7 @@ const SubscriberDashboard = () => {
               className="subscriber-primary-button"
               onClick={() => navigate("/events")}
             >
-              <FaPlus /> Explorer les Event
+              <FaPlus /> Explore events
             </button>
           </div>
         ) : (
@@ -303,7 +303,7 @@ const SubscriberDashboard = () => {
                 </>
               ) : (
                 <>
-                  <FaUserTie /> Demander les privilèges d'Organiser
+                  <FaUserTie /> Request to become organiser
                 </>
               )}
             </button>
