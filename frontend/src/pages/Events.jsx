@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import EventCard from "../components/events/EventCard";
 import apiService from "../utils/apiService";
-import "./Events.css"; // ملف CSS خارجي
+import "./Events.css"; 
 
 const Events = () => {
   const [events, setEvents] = useState([]);

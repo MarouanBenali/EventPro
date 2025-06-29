@@ -187,6 +187,24 @@ class ApiService {
       method: "POST",
     });
   }
+
+  // Notifications
+  async getNotifications(userId) {
+    return await this.request(`/notifications/${userId}`);
+  }
+
+  async addNotification(notificationData) {
+    return await this.request(`/notifications`, {
+      method: "POST",
+      body: JSON.stringify(notificationData),
+    });
+  }
+
+  async markNotificationAsRead(notificationId) {
+    return await this.request(`/notifications/${notificationId}/read`, {
+      method: "PUT",
+    });
+  }
 }
 
 // Helper functions for backward compatibility
@@ -227,5 +245,20 @@ export const getOrganizerEvents = async (organizerId) => {
 export const getEventParticipants = async (eventId) => {
   return await apiService.getEventParticipants(eventId);
 };
+
+// Notifications helpers
+
+export const getUserNotifications = async (userId) => {
+  return await apiService.getNotifications(userId);
+};
+
+export const addUserNotification = async (notificationData) => {
+  return await apiService.addNotification(notificationData);
+};
+
+export const markNotificationAsRead = async (notificationId) => {
+  return await apiService.markNotificationAsRead(notificationId);
+};
+
 
 export default apiService;

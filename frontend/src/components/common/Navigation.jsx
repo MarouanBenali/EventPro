@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import './Navigation.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import "./Navigation.css";
 import ChatbotWidget from "./ChatbotWidget";
+import NotificationBell from "./NotificationBell";
 
-// استيراد الأيقونات من react-icons
-import { FaHome, FaCalendarAlt, FaChartBar, FaUser, FaPlus, FaSignOutAlt, FaSignInAlt, FaBars } from 'react-icons/fa';
+import {
+  FaHome,
+  FaCalendarAlt,
+  FaChartBar,
+  FaUser,
+  FaPlus,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaBars,
+} from "react-icons/fa";
 
 const Navigation = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -28,31 +37,66 @@ const Navigation = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
     handleMenuClose();
   };
 
+  const handleScroll = useCallback(() => {
+    const appBar = document.querySelector('.app-bar');
+    if (appBar) {
+      appBar.classList.toggle('scrolled', window.scrollY > 10);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
+
   const getMenuItems = () => {
     const items = [
-      { text: 'Home', icon: <FaHome />, path: '/', roles: ['visitor', 'subscriber', 'organizer', 'admin'] },
-      { text: 'Events', icon: <FaCalendarAlt />, path: '/events', roles: ['visitor', 'subscriber', 'organizer', 'admin'] }
+      {
+        text: "Home",
+        icon: <FaHome />,
+        path: "/",
+        roles: ["visitor", "subscriber", "organizer", "admin"],
+      },
+      {
+        text: "Events",
+        icon: <FaCalendarAlt />,
+        path: "/events",
+        roles: ["visitor", "subscriber", "organizer", "admin"],
+      },
     ];
 
     if (user) {
       items.push(
-        { text: 'Dashboard', icon: <FaChartBar />, path: '/dashboard', roles: ['subscriber', 'organizer', 'admin'] },
-        { text: 'Profile', icon: <FaUser />, path: '/profile', roles: ['subscriber', 'organizer', 'admin'] }
+        {
+          text: "Dashboard",
+          icon: <FaChartBar />,
+          path: "/dashboard",
+          roles: ["subscriber", "organizer", "admin"],
+        },
+        {
+          text: "Profile",
+          icon: <FaUser />,
+          path: "/profile",
+          roles: ["subscriber", "organizer", "admin"],
+        }
       );
 
-      if (user.role === 'organizer' || user.role === 'admin') {
-        items.push(
-          { text: 'Create Event', icon: <FaPlus />, path: '/events/create', roles: ['organizer', 'admin'] }
-        );
+      if (user.role === "organizer" || user.role === "admin") {
+        items.push({
+          text: "Create Event",
+          icon: <FaPlus />,
+          path: "/events/create",
+          roles: ["organizer", "admin"],
+        });
       }
     }
 
-    return items.filter(item =>
-      !user ? item.roles.includes('visitor') : item.roles.includes(user.role)
+    return items.filter((item) =>
+      !user ? item.roles.includes("visitor") : item.roles.includes(user.role)
     );
   };
 
@@ -64,7 +108,9 @@ const Navigation = () => {
         {menuItems.map((item) => (
           <li
             key={item.text}
-            className={`drawer-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`drawer-item ${
+              location.pathname === item.path ? "active" : ""
+            }`}
           >
             <Link to={item.path} onClick={() => setMobileOpen(false)}>
               <span className="item-icon">{item.icon}</span>
@@ -75,14 +121,18 @@ const Navigation = () => {
         {!user && (
           <li className="drawer-item">
             <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <span className="item-icon"><FaSignInAlt /></span>
+              <span className="item-icon">
+                <FaSignInAlt />
+              </span>
               <span className="item-text">Login</span>
             </Link>
           </li>
         )}
         {user && (
           <li className="drawer-item" onClick={handleLogout}>
-            <span className="item-icon"><FaSignOutAlt /></span>
+            <span className="item-icon">
+              <FaSignOutAlt />
+            </span>
             <span className="item-text">Logout</span>
           </li>
         )}
@@ -111,7 +161,9 @@ const Navigation = () => {
               <Link
                 key={item.text}
                 to={item.path}
-                className={`desktop-menu-item ${location.pathname === item.path ? 'active' : ''}`}
+                className={`desktop-menu-item ${
+                  location.pathname === item.path ? "active" : ""
+                }`}
               >
                 <span className="item-icon">{item.icon}</span>
                 {item.text}
@@ -122,40 +174,58 @@ const Navigation = () => {
           <div className="user-section">
             {user ? (
               <>
+                <div className="notifications-container">
+                  <NotificationBell user={user} />
+                </div>
                 <button
                   className="user-avatar-button"
                   aria-label="account of current user"
                   onClick={handleProfileMenuOpen}
                 >
                   <div className="user-avatar">
-                    {user.name?.charAt(0).toUpperCase() || 'U'}
+                    {user.name?.charAt(0).toUpperCase() || "U"}
                   </div>
                 </button>
                 {anchorEl && (
                   <div className="profile-menu">
-                    <div className="menu-item" onClick={() => { navigate('/profile'); handleMenuClose(); }}>
-                      <span className="menu-icon"><FaUser /></span> Profile
+                    <div
+                      className="menu-item"
+                      onClick={() => {
+                        navigate("/profile");
+                        handleMenuClose();
+                      }}
+                    >
+                      <span className="menu-icon">
+                        <FaUser />
+                      </span>{" "}
+                      Profile
                     </div>
                     <div className="menu-item" onClick={handleLogout}>
-                      <span className="menu-icon"><FaSignOutAlt /></span> Logout
+                      <span className="menu-icon">
+                        <FaSignOutAlt />
+                      </span>{" "}
+                      Logout
                     </div>
                   </div>
                 )}
               </>
             ) : (
               <Link to="/login" className="login-button">
-                <span className="item-icon"><FaSignInAlt /></span> Login
+                <span className="item-icon">
+                  <FaSignInAlt />
+                </span>{" "}
+                Login
               </Link>
             )}
           </div>
         </div>
       </header>
 
-      <div className={`mobile-drawer ${mobileOpen ? 'open' : ''}`}>
+      <div className={`mobile-drawer ${mobileOpen ? "open" : ""}`}>
         <div className="drawer-backdrop" onClick={handleDrawerToggle}></div>
         {drawer}
       </div>
-       <ChatbotWidget />
+      <ChatbotWidget />
     </>
   );
 };
