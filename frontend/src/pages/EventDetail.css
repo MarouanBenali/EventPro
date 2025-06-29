@@ -12,7 +12,7 @@
   --text-primary: #212121;
   --text-secondary: #757575;
   --divider-color: #e0e0e0;
-  
+
   /* Dimensions */
   --border-radius: 8px;
   --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.377);
@@ -25,7 +25,7 @@
 
 /* Styles de base */
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   color: var(--text-primary);
   line-height: 1.6;
   margin: 0;
@@ -381,7 +381,7 @@ body {
   color: var(--secondary-color);
 }
 
-/* Organisateur */
+/* Organiser */
 .event-detail-page .organizer-card {
   background: white;
   padding: var(--spacing-lg);
@@ -421,7 +421,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;

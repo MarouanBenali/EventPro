@@ -30,7 +30,7 @@ const SubscriberDashboard = () => {
   const [requestMessage, setRequestMessage] = useState("");
 
   const formatDate = (dateString) => {
-    if (!dateString) return "Indisponible";
+    if (!dateString) return "None";
     const options = { day: "numeric", month: "long", year: "numeric" };
     return new Date(dateString).toLocaleDateString("fr-FR", options);
   };
@@ -45,7 +45,7 @@ const SubscriberDashboard = () => {
       });
       setRequestMessage(data.message || "Demande envoyée avec succès.");
     } catch (error) {
-      console.error("Erreur lors de la demande d'organisateur :", error);
+      console.error("Erreur lors de la demande d'Organiser :", error);
       setRequestMessage(
         error.message || "Échec de l'envoi de la demande. Veuillez réessayer."
       );
@@ -80,7 +80,7 @@ const SubscriberDashboard = () => {
           setRecommendedEvents(shuffled.slice(0, 3));
         } catch (err) {
           console.error("Erreur lors du chargement :", err);
-          setError(err.message || "Impossible de charger vos événements.");
+          setError(err.message || "Impossible de charger vos Event.");
         } finally {
           setLoading(false);
           setLoadingRecs(false);
@@ -98,7 +98,7 @@ const SubscriberDashboard = () => {
       <div className="subscriber-container">
         <div className="loading">
           <FaSpinner className="loading-spinner" />
-          <p>Chargement des événements...</p>
+          <p>Chargement des Event...</p>
         </div>
       </div>
     );
@@ -116,50 +116,67 @@ const SubscriberDashboard = () => {
     <div className="admin-container">
       {/* En-tête */}
       <header className="admin-header">
-        <h1>Tableau de bord de l'abonné</h1>
+        <h1></h1>
         <p>
-          Bienvenue {user?.name} ! Voici un aperçu de vos activités et options.
+          Welcome {user?.name} ! Here is a view of your activities and options.
         </p>
       </header>
 
       {/* Statistiques rapides */}
       <div className="stats-grid">
-        <div className="stat-card" style={{ backgroundColor: "#f0f7ff", borderTop: "4px solid #9c27b0" }}>
+        <div
+          className="stat-card"
+          style={{ backgroundColor: "#f0f7ff", borderTop: "4px solid #9c27b0" }}
+        >
           <div className="stat-icon">
             <FaCalendarAlt style={{ color: "#3f51b5" }} />
           </div>
-          <div className="stat-label">Événements enregistrés</div>
+          <div className="stat-label">Saved events</div>
           <div className="stat-value">{registeredEvents.length}</div>
         </div>
 
-        <div className="stat-card" style={{ backgroundColor: "#f0fff4", borderTop: "4px solid #3f51b5" }}>
+        <div
+          className="stat-card"
+          style={{ backgroundColor: "#f0fff4", borderTop: "4px solid #3f51b5" }}
+        >
           <div className="stat-icon">
             <FaUsers style={{ color: "#4caf50" }} />
           </div>
-          <div className="stat-label">Événements à venir</div>
+          <div className="stat-label">Upcoming events</div>
           <div className="stat-value">
             {registeredEvents.filter((e) => e.status === "upcoming").length}
           </div>
         </div>
 
-        <div className="stat-card" style={{ backgroundColor: "#fff8f0", borderTop: "4px solid #ff9800" }}>
+        <div
+          className="stat-card"
+          style={{ backgroundColor: "#fff8f0", borderTop: "4px solid #ff9800" }}
+        >
           <div className="stat-icon">
             <FaStar style={{ color: "#ff9800" }} />
           </div>
-          <div className="stat-label">Catégorie préférée</div>
-          <div className="stat-value"> {registeredEvents.length > 0 ? registeredEvents[0].category : "Indisponible"} </div>
+          <div className="stat-label">Prefered Category</div>
+          <div className="stat-value">
+            {" "}
+            {registeredEvents.length > 0
+              ? registeredEvents[0].category
+              : "None"}{" "}
+          </div>
         </div>
       </div>
 
-      {/* Événements enregistrés */}
+      {/* Saved events */}
       <div className="subscriber-content">
-        <h2 className="section-title">Mes événements</h2>
+        <h2 className="section-title">My events</h2>
 
         {registeredEvents.length === 0 ? (
           <div className="empty-message">
-            <p>Vous n'êtes inscrit à aucun événement pour le moment.</p>
-            <button className="subscriber-primary-button" onClick={() => navigate("/events")} >
-              <FaPlus /> Explorer les événements
+            <p>You are not subscribed to any event.</p>
+            <button
+              className="subscriber-primary-button"
+              onClick={() => navigate("/events")}
+            >
+              <FaPlus /> Explorer les Event
             </button>
           </div>
         ) : (
@@ -167,10 +184,10 @@ const SubscriberDashboard = () => {
             <table className="subscriber-data-table">
               <thead>
                 <tr>
-                  <th>Titre</th>
+                  <th>Title</th>
                   <th>Date</th>
-                  <th>Lieu</th>
-                  <th>Organisateur</th>
+                  <th>Localisation</th>
+                  <th>Organiser</th>
                   <th>Statut</th>
                   <th>Actions</th>
                 </tr>
@@ -201,7 +218,7 @@ const SubscriberDashboard = () => {
                     <td>{event.organizer}</td>
                     <td>
                       <span className={`status-badge ${event.status}`}>
-                        {event.status === "upcoming" ? "À venir" : "Terminé"}
+                        {event.status === "upcoming" ? "Upcoming" : "Done"}
                       </span>
                     </td>
                     <td>
@@ -268,16 +285,12 @@ const SubscriberDashboard = () => {
         )}
       </div>
 
-      {/* Demande de passage à organisateur */}
+      {/* Demande de passage à Organiser */}
       {user && user.role === "subscriber" && (
         <div className="subscriber-content upgrade-account-section">
-          <h2 className="section-title">Passer Organisateur</h2>
+          <h2 className="section-title">Become organiser</h2>
           <div className="upgrade-card">
-            <p>
-              Vous souhaitez créer et gérer vos propres événements ? Demandez
-              les privilèges d'organisateur pour débloquer plus de
-              fonctionnalités.
-            </p>
+            <p>Create your own events and invite your friends to join you.</p>
             <button
               className="subscriber-primary-button"
               onClick={handleRequestOrganizer}
@@ -290,7 +303,7 @@ const SubscriberDashboard = () => {
                 </>
               ) : (
                 <>
-                  <FaUserTie /> Demander les privilèges d'organisateur
+                  <FaUserTie /> Demander les privilèges d'Organiser
                 </>
               )}
             </button>

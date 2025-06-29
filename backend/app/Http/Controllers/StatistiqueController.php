@@ -6,9 +6,11 @@ use App\Models\Statistique;
 use App\Models\Event;
 use Illuminate\Http\Request;
 
-class StatistiqueController extends Controller{
+class StatistiqueController extends Controller
+{
     // Afficher les statistiques d'un événement spécifique
-    public function show($eventId){
+    public function show($eventId)
+    {
         // Vérifier si l'événement existe
         $Event = Event::findOrFail($eventId);
 
@@ -23,7 +25,8 @@ class StatistiqueController extends Controller{
     }
 
     // Mettre à jour les statistiques pour un événement spécifique
-    public function update(Request $request, $eventId){
+    public function update(Request $request, $eventId)
+    {
         // Vérifier si l'événement existe
         $Event = Event::findOrFail($eventId);
 
@@ -53,9 +56,10 @@ class StatistiqueController extends Controller{
         return response()->json(['message' => 'Statistiques mises à jour avec succès.'], 200);
     }
 
-    // Afficher tous les événements avec leurs statistiques
-    public function index(){
-        // Récupérer tous les événements avec leurs statistiques associées
+    // Afficher tous les Event avec leurs statistiques
+    public function index()
+    {
+        // Récupérer tous les Event avec leurs statistiques associées
         $Events = Event::with('statistiques')->get();
 
         return response()->json($Events, 200);

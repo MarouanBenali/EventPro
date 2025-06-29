@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import EventCard from "../components/events/EventCard";
 import apiService from "../utils/apiService";
-import "./Events.css"; 
+import "./Events.css";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
@@ -12,7 +12,7 @@ const Events = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Charger les événements au démarrage
+  // Charger les Event au démarrage
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -29,7 +29,7 @@ const Events = () => {
     fetchEvents();
   }, []);
 
-  // Filtrage des événements à chaque changement
+  // Filtrage des Event à chaque changement
   useEffect(() => {
     const search = searchTerm.toLowerCase();
     const result = events.filter((event) => {
@@ -41,8 +41,7 @@ const Events = () => {
       const matchesCategory =
         !categoryFilter || event.category === categoryFilter;
 
-      const matchesStatus =
-        !statusFilter || event.status === statusFilter;
+      const matchesStatus = !statusFilter || event.status === statusFilter;
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
@@ -126,7 +125,7 @@ const Events = () => {
         Showing {filteredEvents.length} of {events.length} events
       </p>
 
-      {/* Grille des événements */}
+      {/* Grille des Event */}
       {filteredEvents.length > 0 ? (
         <div className="grid">
           {filteredEvents.map((event) => (

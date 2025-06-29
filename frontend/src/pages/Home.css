@@ -95,7 +95,7 @@
   color: #666;
 }
 
-/* Sections événements */
+/* Sections Event */
 .events-section {
   padding: 4rem 2rem;
   background: white;
@@ -123,9 +123,8 @@
 }
 
 .events-grid > * {
-  width: 100%; 
+  width: 100%;
 }
-
 
 .no-events {
   text-align: center;

@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { FaCalendarAlt, FaChartLine, FaUsers, FaStar } from 'react-icons/fa';
-import EventCard from '../components/events/EventCard';
-import { useAuth } from '../hooks/useAuth';
-import { getUpcomingEvents, getPastEvents } from '../utils/apiService';
-import './Home.css'; // fichier CSS personnalisé
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FaCalendarAlt, FaChartLine, FaUsers, FaStar } from "react-icons/fa";
+import EventCard from "../components/events/EventCard";
+import { useAuth } from "../hooks/useAuth";
+import { getUpcomingEvents, getPastEvents } from "../utils/apiService";
+import "./Home.css"; // fichier CSS personnalisé
 
 const Home = () => {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { user } = useAuth();
 
-  // Charger les événements
+  // Charger les Event
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         const [upcoming, past] = await Promise.all([
           getUpcomingEvents(),
-          getPastEvents()
+          getPastEvents(),
         ]);
         setUpcomingEvents(upcoming.slice(0, 3));
         setPastEvents(past.slice(0, 3));
       } catch (err) {
-        setError('Failed to load events');
-        console.error('Error fetching events:', err);
+        setError("Failed to load events");
+        console.error("Error fetching events:", err);
       } finally {
         setLoading(false);
       }
@@ -34,10 +34,10 @@ const Home = () => {
   }, []);
 
   const stats = [
-    { icon: <FaCalendarAlt />, label: 'Total Events', value: '50+' },
-    { icon: <FaUsers />, label: 'Active Users', value: '1,200+' },
-    { icon: <FaChartLine />, label: 'Success Rate', value: '98%' },
-    { icon: <FaStar />, label: 'Average Rating', value: '4.9' },
+    { icon: <FaCalendarAlt />, label: "Total Events", value: "50+" },
+    { icon: <FaUsers />, label: "Active Users", value: "1,200+" },
+    { icon: <FaChartLine />, label: "Success Rate", value: "98%" },
+    { icon: <FaStar />, label: "Average Rating", value: "4.9" },
   ];
 
   if (loading) {
@@ -51,8 +51,14 @@ const Home = () => {
         <h1>Discover Amazing Events</h1>
         <p>Join the most exciting events in your area or create your own</p>
         <div className="hero-buttons">
-          <Link to="/events" className="btn primary">Browse Events</Link>
-          {!user && <Link to="/signup" className="btn outline">Join Now</Link>}
+          <Link to="/events" className="btn primary">
+            Browse Events
+          </Link>
+          {!user && (
+            <Link to="/signup" className="btn outline">
+              Join Now
+            </Link>
+          )}
         </div>
       </section>
 
@@ -70,15 +76,17 @@ const Home = () => {
       {/* Message d'erreur */}
       {error && <div className="error">{error}</div>}
 
-      {/* Événements à venir */}
+      {/* Upcoming events */}
       <section className="events-section">
         <div className="section-header">
           <h2>Upcoming Events</h2>
-          <Link to="/events" className="btn small">View All</Link>
+          <Link to="/events" className="btn small">
+            View All
+          </Link>
         </div>
         <div className="events-grid">
           {upcomingEvents.length > 0 ? (
-            upcomingEvents.map(event => (
+            upcomingEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))
           ) : (
@@ -87,15 +95,17 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Événements passés */}
+      {/* Event passés */}
       <section className="events-section">
         <div className="section-header">
           <h2>Recent Past Events</h2>
-          <Link to="/events" className="btn small">View All</Link>
+          <Link to="/events" className="btn small">
+            View All
+          </Link>
         </div>
         <div className="events-grid">
           {pastEvents.length > 0 ? (
-            pastEvents.map(event => (
+            pastEvents.map((event) => (
               <EventCard key={event.id} event={event} />
             ))
           ) : (
@@ -107,10 +117,17 @@ const Home = () => {
       {/* Call to action */}
       <section className="cta">
         <h2>Ready to Get Started?</h2>
-        <p>Join thousands of event organizers and attendees who trust our platform</p>
+        <p>
+          Join thousands of event organizers and attendees who trust our
+          platform
+        </p>
         <div className="hero-buttons">
-          <Link to="/signup" className="btn primary">Create Account</Link>
-          <Link to="/login" className="btn outline">Sign In</Link>
+          <Link to="/signup" className="btn primary">
+            Create Account
+          </Link>
+          <Link to="/login" className="btn outline">
+            Sign In
+          </Link>
         </div>
       </section>
     </div>

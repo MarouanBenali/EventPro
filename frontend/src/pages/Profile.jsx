@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { 
-  FaUserCircle, 
-  FaCalendarAlt, 
-  FaLock, 
-  FaEnvelope, 
-  FaUserShield, 
-  FaClipboardList, 
-  FaTrashAlt, 
-  FaEdit, 
-  FaSave 
+import {
+  FaUserCircle,
+  FaCalendarAlt,
+  FaLock,
+  FaEnvelope,
+  FaUserShield,
+  FaClipboardList,
+  FaTrashAlt,
+  FaEdit,
+  FaSave,
 } from "react-icons/fa";
 import { useAuth } from "../hooks/useAuth";
 import "./Profile.css";
@@ -23,7 +23,7 @@ const Profile = () => {
   const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -43,41 +43,52 @@ const Profile = () => {
   };
 
   const getRoleClass = () => {
-    if(user?.role === "admin") return "chip admin";
-    if(user?.role === "organizer") return "chip organizer";
+    if (user?.role === "admin") return "chip admin";
+    if (user?.role === "organizer") return "chip organizer";
     return "chip subscriber";
   };
 
   const getRoleIcon = () => {
-    if(user?.role === "admin") return <FaUserShield />;
-    if(user?.role === "organizer") return <FaClipboardList />;
+    if (user?.role === "admin") return <FaUserShield />;
+    if (user?.role === "organizer") return <FaClipboardList />;
     return <FaUserCircle />;
   };
 
   return (
     <main className="centered-container">
-
       <header className="gradient-header">
-        <h1>Paramètres du Profil</h1>
-        <p>Gérez vos informations personnelles et préférences</p>
+        <h1>Account Settings</h1>
+        <p>Manage your profile information</p>
       </header>
 
-      {success && <div className="alert-success">Profil mis à jour avec succès!</div>}
+      {success && (
+        <div className="alert-success">Profil mis à jour avec succès!</div>
+      )}
 
       <div className="profile-layout">
         <section className="profile-left">
           <div className="profile-card">
-            <div className="avatar">{user?.name?.charAt(0).toUpperCase() || "U"}</div>
+            <div className="avatar">
+              {user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
             <h2>{user?.name}</h2>
             <div className={getRoleClass()}>
               {getRoleIcon()}{" "}
               {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
             </div>
             <ul className="info-list">
-              <li><FaCalendarAlt /> Membre depuis Juin 2024</li>
-              <li><FaUserShield /> <strong>Statut du compte:</strong> Actif</li>
-              <li><FaEnvelope /> <strong>Email vérifié:</strong> Oui</li>
-              <li><FaLock /> <strong>Dernière connexion:</strong> Aujourd'hui</li>
+              <li>
+                <FaCalendarAlt /> Member since Juin 2024
+              </li>
+              <li>
+                <FaUserShield /> <strong>Account status:</strong> Actif
+              </li>
+              <li>
+                <FaEnvelope /> <strong>Verified email:</strong> Oui
+              </li>
+              <li>
+                <FaLock /> <strong>Last active:</strong> Aujourd'hui
+              </li>
             </ul>
           </div>
         </section>
@@ -86,7 +97,7 @@ const Profile = () => {
           <section className="profile-form">
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="name">Nom Complet</label>
+                <label htmlFor="name">Full name</label>
                 <input
                   type="text"
                   id="name"
@@ -99,7 +110,7 @@ const Profile = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="email">Adresse Email</label>
+                <label htmlFor="email">Email address</label>
                 <input
                   type="email"
                   id="email"
@@ -118,7 +129,7 @@ const Profile = () => {
                     className="btn outlined"
                     onClick={() => setEditing(true)}
                   >
-                    <FaEdit /> Modifier le Profil
+                    <FaEdit /> Edit profile
                   </button>
                 ) : (
                   <>
@@ -127,7 +138,7 @@ const Profile = () => {
                       className="btn outlined"
                       onClick={handleCancel}
                     >
-                      Annuler
+                      Cancel
                     </button>
                     <button type="submit" className="btn contained">
                       <FaSave /> Enregistrer
@@ -139,31 +150,29 @@ const Profile = () => {
           </section>
 
           <section className="account-settings">
-            <h2>Paramètres du Compte</h2>
+            <h2>Account settings</h2>
             <select disabled value={user?.role || ""}>
               <option value="subscriber">Abonné</option>
-              <option value="organizer">Organisateur</option>
-              <option value="admin">Administrateur</option>
+              <option value="organizer">Organiser</option>
+              <option value="admin">Administrator</option>
             </select>
             <p>
-              Pour modifier votre type de compte, veuillez contacter le support ou
-              soumettre une demande via votre tableau de bord.
+              To modify your account settings, please contact our support team.
             </p>
           </section>
 
           <section className="danger-zone">
-            <h2>Zone de Danger</h2>
+            <h2>Danger zone</h2>
             <p>
-              Une fois votre compte supprimé, il n'y a pas de retour en arrière possible.
-              Veuillez être certain de votre décision.
+              Deleting your account is a permanent action and cannot be undone.
+              Please be certain before proceeding.
             </p>
             <button>
-              <FaTrashAlt /> Supprimer le Compte
+              <FaTrashAlt /> Delete account
             </button>
           </section>
         </section>
       </div>
-
     </main>
   );
 };

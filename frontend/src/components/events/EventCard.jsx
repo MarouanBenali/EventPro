@@ -1,13 +1,13 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  FaCalendarAlt, 
-  FaMapMarkerAlt, 
+import React from "react";
+import { Link } from "react-router-dom";
+import {
+  FaCalendarAlt,
+  FaMapMarkerAlt,
   FaUsers,
   FaMoneyBillAlt,
-  FaTag
-} from 'react-icons/fa';
-import './EventCard.css';
+  FaTag,
+} from "react-icons/fa";
+import "./EventCard.css";
 
 /**
  * Composant EventCard pour afficher une carte d'événement
@@ -20,40 +20,43 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
   // Formater la date en français
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
-  // Formater l'heure en français
+  // Formater l'Time en français
   const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(':');
+    const [hours, minutes] = timeString.split(":");
     const date = new Date();
     date.setHours(parseInt(hours), parseInt(minutes));
-    return date.toLocaleTimeString('fr-FR', {
-      hour: 'numeric',
-      minute: '2-digit'
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "numeric",
+      minute: "2-digit",
     });
   };
 
   // Déterminer la classe CSS selon le statut
   const getStatusClass = (status) => {
     switch (status) {
-      case 'upcoming': return 'status-upcoming';
-      case 'past': return 'status-past';
-      default: return 'status-default';
+      case "upcoming":
+        return "status-upcoming";
+      case "past":
+        return "status-past";
+      default:
+        return "status-default";
     }
   };
 
   return (
     <div className="event-card">
-      {/* Image de l'événement */}
+      {/* Event image */}
       <div className="event-image-container">
-        <img 
-          src={event.image} 
+        <img
+          src={event.image}
           alt={event.title}
           className="event-image"
           loading="lazy"
@@ -62,17 +65,15 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
 
       {/* Contenu de la carte */}
       <div className="event-content">
-        {/* En-tête avec catégorie et statut */}
+        {/* En-tête avec Category et statut */}
         <div className="event-header">
-          <span className="event-category">
-          {event.category}
-          </span>
+          <span className="event-category">{event.category}</span>
           <span className={`event-status ${getStatusClass(event.status)}`}>
-            {event.status === 'upcoming' ? 'À venir' : 'Terminé'}
+            {event.status === "upcoming" ? "Upcoming" : "Done"}
           </span>
         </div>
 
-        {/* Titre et description */}
+        {/* Title et description */}
         <h3 className="event-title">{event.title}</h3>
         <p className="event-description">{event.description}</p>
 
@@ -80,22 +81,26 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
         <div className="event-details">
           <div className="detail-item">
             <FaCalendarAlt className="icon" />
-            <span>{formatDate(event.date)} à {formatTime(event.time)}</span>
+            <span>
+              {formatDate(event.date)} à {formatTime(event.time)}
+            </span>
           </div>
-          
+
           <div className="detail-item">
             <FaMapMarkerAlt className="icon" />
             <span>{event.location}</span>
           </div>
-          
+
           <div className="detail-item">
             <FaUsers className="icon" />
-            <span>{event.currentParticipants}/{event.maxParticipants} participants</span>
+            <span>
+              {event.currentParticipants}/{event.maxParticipants} participants
+            </span>
           </div>
-          
+
           <div className="detail-item">
             <FaMoneyBillAlt className="icon" />
-            <span>{event.price === 0 ? 'Gratuit' : `${event.price}€`}</span>
+            <span>{event.price === 0 ? "Gratuit" : `${event.price}€`}</span>
           </div>
         </div>
 
@@ -103,7 +108,9 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
         {event.tags?.length > 0 && (
           <div className="event-tags">
             {event.tags.slice(0, 3).map((tag, index) => (
-              <span key={index} className="event-tag">{tag}</span>
+              <span key={index} className="event-tag">
+                {tag}
+              </span>
             ))}
           </div>
         )}
@@ -113,14 +120,20 @@ const EventCard = ({ event, showRegisterButton = false, onRegister }) => {
           <Link to={`/events/${event.id}`} className="btn btn-outline">
             Voir détails
           </Link>
-          
-          {showRegisterButton && event.status === 'upcoming' && (
+
+          {showRegisterButton && event.status === "upcoming" && (
             <button
-              className={`btn ${event.currentParticipants >= event.maxParticipants ? 'btn-disabled' : 'btn-primary'}`}
+              className={`btn ${
+                event.currentParticipants >= event.maxParticipants
+                  ? "btn-disabled"
+                  : "btn-primary"
+              }`}
               onClick={() => onRegister(event.id)}
               disabled={event.currentParticipants >= event.maxParticipants}
             >
-              {event.currentParticipants >= event.maxParticipants ? 'Complet' : "S'inscrire"}
+              {event.currentParticipants >= event.maxParticipants
+                ? "Complet"
+                : "S'inscrire"}
             </button>
           )}
         </div>
